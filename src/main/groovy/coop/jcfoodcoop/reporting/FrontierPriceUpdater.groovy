@@ -13,6 +13,11 @@ class FrontierPriceUpdater {
     private String sourceFilePath;
     private String updateFilePath;
 
+    public FrontierPriceUpdater(String sourceFilePath, String updateFilePath) {
+        this.sourceFilePath = sourceFilePath;
+        this.updateFilePath = updateFilePath;
+    }
+
     public void update(String outputFile) {
         def products = parseSourceToMap(sourceFilePath)
         def updates = parseUpdateFile(updateFilePath)
@@ -21,12 +26,12 @@ class FrontierPriceUpdater {
             code, price ->
             String[] row = products.get(code);
             if (row != null) {
-                row[7] = price
+                row[7] = '$'+price;
             }
         }
 
         // Copy over the header from the source file.
-        String header = parseHeader(sourceFilePath)
+        String[] header = parseHeader(sourceFilePath)
 
         CSVWriter writer = new CSVWriter(new FileWriter(outputFile) )
         writer.writeNext(header)
@@ -49,7 +54,7 @@ class FrontierPriceUpdater {
      * @param outputPath
      * @return
      */
-    private Map<Integer, String[]> parseSourceToMap(String sourceFilePath) {
+    private Map<String, String[]> parseSourceToMap(String sourceFilePath) {
         boolean headerEncountered = false;
         CSVReader reader = new CSVReader(new FileReader(sourceFilePath))
 
@@ -80,13 +85,16 @@ class FrontierPriceUpdater {
         * UOM
         * UOMPEREA*/
 
-        Map<Integer, String[]> result = new LinkedHashMap<Integer, String[]>();
+        Map<String, String[]> result = new LinkedHashMap<String, String[]>();
         reader.readAll().each {
             String[] cells ->
             if (headerEncountered) {
                 if (cells.length > 3) {
-                    Integer code = Integer.valueOf(cells[1]);
-                    result.put(code, cells)
+                    String codeString = cells[1];
+                    if (codeString == null || codeString.trim().equals("")) {
+                        return;
+                    }
+                    result.put(codeString, cells)
                 } else {
                     System.out.println("Skipping bad row ${cells}")
                 }
@@ -99,7 +107,7 @@ class FrontierPriceUpdater {
         return result;
     }
 
-    private Map<Integer, String> parseUpdateFile(String updateFile) {
+    private Map<String, String> parseUpdateFile(String updateFile) {
         boolean headerEncountered = false;
         CSVReader reader = new CSVReader(new FileReader(updateFile))
 
@@ -111,12 +119,12 @@ class FrontierPriceUpdater {
          * SalesPrice
         */
 
-        Map<Integer, String> result = new HashMap<Integer, String>();
+        Map<String, String> result = new HashMap<String, String>();
         reader.readAll().each {
             String[] cells ->
             if (headerEncountered) {
                 if (cells.length > 3) {
-                    Integer code = Integer.valueOf(cells[0]);
+                    def code = cells[0];
                     String salesPrice = cells[3]
                     result.put(code, salesPrice)
                 } else {

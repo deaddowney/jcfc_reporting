@@ -72,6 +72,9 @@ public class ProductDialog extends JDialog {
                     final File selectedFile = chooser.getSelectedFile();
                     lastDirectory = selectedFile.getParent();
                     updateFileNameBox.setText(selectedFile.getAbsolutePath());
+                    //Run button is set if both text boxes have content
+                    buttonOK.setEnabled(frontierFilenameBox.getText().trim() != null);
+
                 }
             }
         });
@@ -88,12 +91,26 @@ public class ProductDialog extends JDialog {
                     lastDirectory = selectedFile.getParent();
 
                     frontierFilenameBox.setText(selectedFile.getAbsolutePath());
+                    //Run button is set if both text boxes have content
+                    buttonOK.setEnabled(updateFileNameBox.getText().trim() != null);
                 }
             }
         });
     }
 
     private void onOK() {
+        final String frontierFile = frontierFilenameBox.getText();
+        FrontierPriceUpdater updater = new FrontierPriceUpdater(frontierFile, updateFileNameBox.getText());
+        try {
+            final String outputFile = frontierFile.substring(0, frontierFile.length() - 4) + ".new.csv";
+            updater.update(outputFile);
+            JOptionPane.showMessageDialog(ProductDialog.this, "Successfully created output file :" + outputFile);
+            Desktop.getDesktop().edit(new File(outputFile));
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(ProductDialog.this, "Error created output file :" + e.getMessage());
+
+        }
+
 // add your code here
         dispose();
     }
@@ -149,6 +166,7 @@ public class ProductDialog extends JDialog {
         panel4.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         panel3.add(panel4, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         buttonOK = new JButton();
+        buttonOK.setEnabled(false);
         buttonOK.setText("Run");
         panel4.add(buttonOK, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel5 = new JPanel();
