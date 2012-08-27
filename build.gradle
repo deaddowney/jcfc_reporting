@@ -1,0 +1,29 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
+
+repositories {
+    mavenCentral()
+}
+sourceCompatibility = 1.5
+version = '1.0'
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Gradle Quickstart', 'Implementation-Version': version
+    }
+}
+
+dependencies {
+    compile(
+            [group: 'joda-time', name: 'joda-time', version: '1.6.2'],
+            [group: 'jfree', name: 'jfreechart', version: '1.0.13'],
+            [group: 'org.apache.poi', name: 'poi-scratchpad', version: '3.8-beta5'],
+            [group: 'org.apache.pdfbox', name: 'pdfbox', version: '1.6.0'],
+            [group: 'net.sf.opencsv', name: 'opencsv', version: '2.0'],
+            [group: 'com.intellij', name: 'forms_rt', version: '7.0.3']
+    )
+    groovy('org.codehaus.groovy:groovy-all:1.7.0')
+    compile('org.apache.poi:poi-ooxml:3.8-beta5') {exclude group: 'xml-apis', module: 'xml-apis'}
+    compile('org.odftoolkit:odfdom-java:0.8.6') {exclude group: 'xml-apis', module: 'xml-apis'}
+    testCompile ('junit:junit:4.8.2')
+
+}
