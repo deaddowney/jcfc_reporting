@@ -18,7 +18,7 @@ Date startDate = df.parse('2012-05-08')
 StringBuilder buf = new StringBuilder(queryString);
 for (int i = 1; i < 401; i++) {
     buf.append("('orientation', ").
-        append("'${df.format(startDate)}', ").
+        append("\'${df.format(startDate)}\', ").
         append("'Community Center @ St. Paul Lutheran', ").
         append("60, ").
         append("'Co-op Orientation.  At <a href=\"http://jcfoodcoop.coop/maps-directions\">St. Pauls</a>'")

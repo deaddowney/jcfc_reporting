@@ -11,8 +11,11 @@ import java.text.DecimalFormat
  *
  * @author akrieg
  */
-def inputFile = "src/test/resources/pricelist_july_11_and_12.doc"
+def inputFile = "src/test/resources/pricelist_november_28_and_november_29.doc"
 def outputFile = "out.csv"
+DecimalFormat df = new DecimalFormat("#.00")
+//Create an output of the new products in an html table
+def htmlOutput = "new_products.html"
 KnowledgeBase kb = KnowledgeBaseFactory.parseCsv("src/test/resources/db-6-13-2012.csv")
 HWPFDocument doc = new HWPFDocument(new BufferedInputStream(new FileInputStream(inputFile)))
 WordExtractor ext = new WordExtractor(doc);
@@ -105,7 +108,11 @@ private String escapeValue(Object val) {
 File out = new File(outputFile)
 PrintWriter writer = new PrintWriter(new FileWriter(out, true))
 
+PrintWriter htmlWriter = new PrintWriter(new FileWriter(htmlOutput),true)
+
 writer.println ("code,category,sub_category,sub_category2,manufacturer,product,short_description,size,case_units,each_size,unit_weight,case_weight,wholesale_price,price,sale_price,unit_price,retail_price,price_per_weight,is_priced_by_weight,valid_price,taxed,upc,origin,image_url,thumb_url,num_available,valid_order_increment,valid_split_increment,last_updated,last_updated_by,last_ordered,num_orders")
+htmlWriter.println("<table>")
+htmlWriter.println("\t<tr><th>Category</th><th>Product</th><th>Manufacturer</th><th>Size</th><th>Price</th></tr>")
 int count = 0
 List<ProductEntry> problems = new LinkedList<ProductEntry>()
 entries.each { ProductEntry entry ->
@@ -124,20 +131,21 @@ entries.each { ProductEntry entry ->
     }
     try {
         writer.println createLine(count++, entry, markup, true)
+        writeTableRow(entry, markup, df, htmlWriter)
     } catch(Exception e) {
         System.out.println("Exception writing entry "+entry);
         e.printStackTrace()
     }
 }
 
-
-  //  writer.println """\"${entry.category}\"\t\"${entry.productDescription}\"\t\"${entry.manufacturer}\"\t\"${entry.organic}\"\t\"${entry.price}\"\t\"${entry.size}\"\t\"${entry.salesPrice}\""""
+//  writer.println """\"${entry.category}\"\t\"${entry.productDescription}\"\t\"${entry.manufacturer}\"\t\"${entry.organic}\"\t\"${entry.price}\"\t\"${entry.size}\"\t\"${entry.salesPrice}\""""
 
 
 writer.println("##PROBLEMS.  Could not find a subcategory for these items##")
 problems.each {ProductEntry entry ->
     try {
         writer.println createLine(count++, entry, markup,true)
+        writeTableRow(entry, markup, df, htmlWriter)
     } catch(Exception e) {
         System.out.println("Exception writing problem entry "+entry);
         e.printStackTrace()
@@ -148,10 +156,17 @@ kb.entries().each {
     try {
         writer.println createLine(count++, it, markup, false)
     } catch(Exception e) {
-        System.out.println("Exception writing discontinuted item "+it);
+        System.out.println("Exception writing discontinued item "+it);
         e.printStackTrace()
     }
 }
+
+
+private void writeTableRow(ProductEntry entry, MarkupFactory markup, DecimalFormat format, Writer htmlWriter) {
+    htmlWriter.println("\t<tr><td>${entry.category}</td><td>${entry.productDescription}</td>" +
+            "<td>${entry.manufacturer}</td><td>${entry.size}</td><td>${format.format(markup.getRetailPrice(entry))}</td></tr>")
+}
+
 
 private String createLine(int count, ProductEntry entry, MarkupFactory markupFactory, boolean inStock) {
 
@@ -197,3 +212,5 @@ private String createLine(int count, ProductEntry entry, MarkupFactory markupFac
 
 System.out.println("Printed ${count} records to ${outputFile}")
 writer.close()
+htmlWriter.println("</table>")
+htmlWriter.close()

@@ -4,7 +4,7 @@ package coop.jcfoodcoop.reporting
  * Looks at the product and pulls out a Markup
  * @author akrieg
  */
-class LancasterMarkup implements MarkupFactory {
+class Zone7Markup implements MarkupFactory {
 
     /** Produce is 15% Markup **/
     private static final Double PRODUCE = 1.15;
@@ -13,9 +13,15 @@ class LancasterMarkup implements MarkupFactory {
     /** Non Food is 30% Markup **/
     private static final Double NON_FOOD = 1.3;
 
+
     private static final Map<String, Double> MARKUPS = [
-            "produce" : PRODUCE,
-            "crafts" : NON_FOOD
+            "EGGS" : GROCERY,
+            "SUMMER PRESERVES" : GROCERY,
+            "CHEESE" : GROCERY,
+            "HONEY" : GROCERY,
+            "GRAINS" : GROCERY,
+            "DRIED BEANS" : GROCERY
+
     ]
 
     @Override
@@ -23,7 +29,7 @@ class LancasterMarkup implements MarkupFactory {
         String category = entry.category
         Double markup = MARKUPS.get(category.toLowerCase())
         if (markup == null) {
-            markup = GROCERY
+            markup = PRODUCE
         }
         return markup
     }
