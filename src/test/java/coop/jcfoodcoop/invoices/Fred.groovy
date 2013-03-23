@@ -5,5 +5,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook
  */
 HSSFWorkbook book = new HSSFWorkbook(Fred.class.getResourceAsStream("/testInvoice.xls"))
 ExcelParseContext ctx = new ExcelParseContext(book)
-def excelSheet = ctx.parse()
+boolean totalsOnly = false
+def excelSheet = ctx.parse(totalsOnly, "Tuesday Delivery")
 excelSheet.write(new FileOutputStream("out.xls"))

@@ -11,7 +11,7 @@ import java.text.DecimalFormat
  *
  * @author akrieg
  */
-def inputFile = "src/test/resources/pricelist_november_28_and_november_29.doc"
+def inputFile = "/Users/akrieg/Downloads/pricelist_march26_and_march27.doc"
 def outputFile = "out.csv"
 DecimalFormat df = new DecimalFormat("#.00")
 //Create an output of the new products in an html table

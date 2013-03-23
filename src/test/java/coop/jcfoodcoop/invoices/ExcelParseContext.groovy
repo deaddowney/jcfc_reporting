@@ -24,7 +24,7 @@ class ExcelParseContext {
     private static final Pattern totQtyReceivedRegex = ~/Total quantity received: (\d+\.\d+)/
     private static final Pattern procFeeRegex = ~/Processing fee \((\d+\.\d+)%\)/
 
-    private static final String ID_PREFIX = new Date().format("yyyyMMdd-HHmmss")
+    private static final String ID_PREFIX = new Date().format("yyyyMMdd")
     private int idCounter = 0;
     private static final String DATE = new Date().format("MM-dd-yyyy")
 
@@ -33,7 +33,6 @@ class ExcelParseContext {
 
     private Workbook sourceBook
     private Workbook outBook
-    int rowCounter = 0
 
     ExcelParseContext(Workbook sourceBook) {
         this.sourceBook = sourceBook
@@ -41,28 +40,58 @@ class ExcelParseContext {
 
     }
 
-    public Workbook parse() {
+    public Workbook parse(boolean totalsOnly, String vendor) {
         Sheet outsheet = outBook.createSheet("invoices")
+        int rowCounter = 0 //number of rows that have been written
         Row outRow = outsheet.createRow(rowCounter++)
-        int counter = 0
-        outRow.createCell(counter++).setCellValue("ID")
-        outRow.createCell(counter++).setCellValue("Date")
-        outRow.createCell(counter++).setCellValue("Customer")
-        outRow.createCell(counter++).setCellValue("Product")
-        outRow.createCell(counter++).setCellValue("Description")
-        outRow.createCell(counter++).setCellValue("Qty")
-        outRow.createCell(counter++).setCellValue("Rate")
-        outRow.createCell(counter).setCellValue("Total")
+        createHeader(outRow, totalsOnly)
 
         for (int i = 0; i < sourceBook.numberOfSheets; i++) {
             def sheet = sourceBook.getSheetAt(i)
-            parseSheet(sheet, outsheet)
+            def order = parseSheet(sheet)
+            order.vendor = vendor
+            if (totalsOnly) {
+                outRow =  outsheet.createRow(rowCounter++)
+                writeOrderToRow(order, "Lancaster", outRow)
+            } else {
+
+                for (InvoiceItem item : order.items) {
+                    outRow = outsheet.createRow(rowCounter++)
+                    writeItemToRow(outRow, order, item)
+                }
+                //Write an extra line for fees
+                writeFeeRow(order, outsheet.createRow(rowCounter++) )
+
+            }
+
 
         }
         return outBook
     }
 
-    def parseSheet(Sheet sheet, Sheet outsheet) {
+
+
+    public void createHeader(Row outRow, boolean totalsOnly) {
+        int counter = 0
+        outRow.createCell(counter++).setCellValue("ID")
+        outRow.createCell(counter++).setCellValue("Date")
+        outRow.createCell(counter++).setCellValue("Customer")
+        outRow.createCell(counter++).setCellValue("Source")
+        outRow.createCell(counter++).setCellValue("Product")
+        outRow.createCell(counter++).setCellValue("Description")
+        outRow.createCell(counter++).setCellValue("Qty")
+        if (totalsOnly) {
+            outRow.createCell(counter++).setCellValue("Invoice Total")
+            outRow.createCell(counter++).setCellValue("Fee Pct")
+            outRow.createCell(counter++).setCellValue("Fee Total")
+
+        } else {
+            outRow.createCell(counter++).setCellValue("Rate")
+        }
+        outRow.createCell(counter).setCellValue("Total")
+    }
+
+    private Order parseSheet(Sheet sheet) {
         //The spreadsheet format looks like:
         /**
          * Lisa Clarke
@@ -77,6 +106,12 @@ class ExcelParseContext {
         String name = getName(nameCell)
 
         def state = ParseState.BEGIN
+        Order o = new Order()
+        o.id =  ID_PREFIX + "-" + idCounter++
+        o.customer = name
+
+        List<InvoiceItem> items = new LinkedList<InvoiceItem>()
+        o.items = items
         while (rowIter.hasNext()) {
             Row row = rowIter.next()
             String val = formatter.formatCellValue(row.getCell(0))
@@ -93,49 +128,78 @@ class ExcelParseContext {
                 def invoice = formatter.formatCellValue(invoiceRow.getCell(1))
                 def feeRow = rowIter.next()
                 def fee = formatter.formatCellValue(feeRow.getCell(1))
-                def total = formatter.formatCellValue(rowIter.next().getCell(1))
+                def totalRow = rowIter.next()
+                def total = totalRow.getCell(1).getNumericCellValue()
                 System.out.println("Name:${name}: invoice = ${invoice}, fee ${fee}, total = ${total}")
 
-                InvoiceItem item = new InvoiceItem()
-                item.product = "Fee"
-                item.description = feeRow.getCell(0)
-                Matcher feeMatcher = procFeeRegex.matcher(item.description)
+                o.total = total
+                o.fees = feeRow.getCell(1).getNumericCellValue()
+                o.invoiceTotal = invoiceRow.getCell(1).getNumericCellValue()
+                Matcher feeMatcher = procFeeRegex.matcher(feeRow.getCell(0).getStringCellValue())
+
                 if (feeMatcher.find()) {
-                    item.qty = Double.valueOf(feeMatcher.group(1))/100.0
+                    o.feeRate = Double.valueOf(feeMatcher.group(1))/100.0
                 }
 
-                item.rate = invoiceRow.getCell(1).getNumericCellValue()
-                item.total = feeRow.getCell(1).getNumericCellValue()
-                Row outRow = outsheet.createRow(rowCounter++)
-                writeItemToRow(outRow, name, item)
 
             } else if (row.getCell(0) != null) {
-                rowCounter = writeRow(outsheet, rowCounter, row, name)
+                items.add( createInvoiceItem(row))
 
             }
 
 
             }
+        return o
         }
 
-    public int writeRow(Sheet outsheet, int rowCounter, Row row, String name) {
-        Row outRow = outsheet.createRow(rowCounter++)
-        InvoiceItem item = InvoiceItem.from(row, formatter)
-        writeItemToRow(outRow, name, item)
-        rowCounter
+    public InvoiceItem createInvoiceItem( Row row) {
+        InvoiceItem.from(row, formatter)
+
     }
 
-    public void writeItemToRow(Row outRow, String name, InvoiceItem item) {
+    public void writeItemToRow(Row outRow, Order order, InvoiceItem item) {
         int colCounter = 0
-        def id = ID_PREFIX +"-"+idCounter++
-        outRow.createCell(colCounter++).setCellValue(id)
+        outRow.createCell(colCounter++).setCellValue(order.id)
         outRow.createCell(colCounter++).setCellValue(DATE)
-        outRow.createCell(colCounter++).setCellValue(name)
+        outRow.createCell(colCounter++).setCellValue(order.customer)
+        outRow.createCell(colCounter++).setCellValue(order.vendor)
         outRow.createCell(colCounter++).setCellValue(item.product)
         outRow.createCell(colCounter++).setCellValue(item.description)
         outRow.createCell(colCounter++).setCellValue(item.qty)
         outRow.createCell(colCounter++).setCellValue(item.rate)
-        outRow.createCell(colCounter).setCellValue(item.total)
+        outRow.createCell(colCounter).setCellValue(item.total) //total
+
+    }
+
+    public void writeFeeRow(Order o, Row outRow) {
+        int colCounter = 0
+        outRow.createCell(colCounter++).setCellValue(o.id)
+        outRow.createCell(colCounter++).setCellValue(DATE)
+        outRow.createCell(colCounter++).setCellValue(o.customer)
+        outRow.createCell(colCounter++).setCellValue(o.vendor)
+
+        outRow.createCell(colCounter++).setCellValue("Paypal")
+        outRow.createCell(colCounter++).setCellValue("Paypal Fee")
+        outRow.createCell(colCounter++).setCellValue(o.invoiceTotal)
+        outRow.createCell(colCounter++).setCellValue(o.feeRate)
+        outRow.createCell(colCounter++).setCellValue(o.fees)
+    }
+
+    public void writeOrderToRow(Order o, String product, Row outRow) {
+        int colCounter = 0
+        outRow.createCell(colCounter++).setCellValue(o.id)
+        outRow.createCell(colCounter++).setCellValue(DATE)
+        outRow.createCell(colCounter++).setCellValue(o.customer)
+        outRow.createCell(colCounter++).setCellValue(o.vendor)
+
+        outRow.createCell(colCounter++).setCellValue(product)
+        outRow.createCell(colCounter++).setCellValue("sale")
+        outRow.createCell(colCounter++).setCellValue(1)
+        outRow.createCell(colCounter++).setCellValue(o.invoiceTotal)
+        outRow.createCell(colCounter++).setCellValue(o.feeRate)
+        outRow.createCell(colCounter++).setCellValue(o.fees)
+
+        outRow.createCell(colCounter).setCellValue(o.total)
     }
 
 
@@ -182,5 +246,17 @@ class ExcelParseContext {
             return "product=${product} description='${description}' qty = '${qty}' rate='${rate} total=${total}"
         }
 
+    }
+
+    class Order {
+        String customer
+        List<InvoiceItem> items
+        double fees
+        double feeRate
+        double invoiceTotal
+        double total
+
+        String id
+        String vendor
     }
 }
