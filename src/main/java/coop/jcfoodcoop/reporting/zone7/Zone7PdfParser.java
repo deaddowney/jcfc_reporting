@@ -1,12 +1,25 @@
 package coop.jcfoodcoop.reporting.zone7;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.parser.pdf.PDFParser;
+import org.apache.tika.sax.BodyContentHandler;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.Locator;
+import org.xml.sax.SAXException;
 
 import coop.jcfoodcoop.reporting.CsvProductOutput;
 import coop.jcfoodcoop.reporting.ProductEntry;
@@ -16,7 +29,7 @@ import coop.jcfoodcoop.reporting.Zone7Markup;
 /**
  * @author akrieg
  */
-public class Zone7Parser {
+public class Zone7PdfParser {
 
     public static final Pattern ALL_CAPS_PATTERN = Pattern.compile("(?:[A-Z]+\\s?&?\\s?)+\\(?[a-z\\s,&]*\\)?");
     public static final Pattern PRICE_EXPRESSION_PATTERN = Pattern.compile("\\$\\d+\\.?\\d*");
@@ -27,6 +40,7 @@ public class Zone7Parser {
     public static final Pattern PER_PRICE_PATTERN = Pattern.compile(": ([^/]* / " + PRICE_EXPRESSION_PATTERN.pattern() + ")");
 
     public void parse(String inFile, String outFile) {
+        PDDocument doc = null;
 
         try {
             /**
@@ -45,6 +59,57 @@ public class Zone7Parser {
             Pattern perPrice = PER_PRICE_PATTERN;
             String currentPriceString = null;
 
+
+            Parser parser = new PDFParser();
+           // parser.setSortByPosition(true); // or false
+            ContentHandler handler = new BodyContentHandler(new ContentHandler() {
+                public void setDocumentLocator(Locator locator) {
+
+                }
+
+                public void startDocument() throws SAXException {
+                }
+
+                public void endDocument() throws SAXException {
+                }
+
+                public void startPrefixMapping(String prefix, String uri) throws SAXException {
+                }
+
+                public void endPrefixMapping(String prefix) throws SAXException {
+                }
+
+                public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+                    System.out.println("Start element "+uri+" "+ localName+" "+qName+" "+atts);
+                }
+
+                public void endElement(String uri, String localName, String qName) throws SAXException {
+                    System.out.println("end element "+uri+" "+ localName+" "+qName);
+                }
+
+                public void characters(char[] ch, int start, int length) throws SAXException {
+                    System.out.println("characters "+String.valueOf(ch)+" "+start+" "+length);
+                }
+
+                public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
+                    System.out.println("Ignorable whitespace "+String.valueOf(ch)+" "+start+" "+length);
+                }
+
+                public void processingInstruction(String target, String data) throws SAXException {
+                    System.out.println("PRocessing instructions "+target+" "+data);
+                }
+
+                public void skippedEntity(String name) throws SAXException {
+                }
+            });
+            Metadata metadata = new Metadata();
+            ParseContext context = new ParseContext();
+            InputStream instream = new FileInputStream(inFile);
+            try {
+                parser.parse(instream, handler, metadata, context);
+            } finally {
+                instream.close();
+            }
             WordprocessingMLPackage wordMLPackage =
                     WordprocessingMLPackage.load(new java.io.File(inFile));
             MainDocumentPart mainPart = wordMLPackage.getMainDocumentPart();
@@ -95,6 +160,14 @@ public class Zone7Parser {
             new CsvProductOutput(outFile, new Zone7Markup()).writeOutCsvFile(entries);
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred parsing file " + inFile, e);
+        } finally {
+            if (doc != null) {
+                try {
+                    doc.close();
+                } catch (IOException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
         }
 
 

@@ -10,7 +10,6 @@ XWPFDocument doc = new XWPFDocument(new BufferedInputStream(new FileInputStream(
 XWPFWordExtractor ext = new XWPFWordExtractor(doc);
 String lastLine = null;
 String currentTopic = null;
-ProductEntry currentEntry = null;
 List<ProductEntry> entries = new LinkedList<ProductEntry>();
 def text = doc.getParagraphs()
 //BERRIES & TREE FRUIT

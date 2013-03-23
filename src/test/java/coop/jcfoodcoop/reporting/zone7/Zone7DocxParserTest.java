@@ -6,21 +6,19 @@ import java.io.FileReader;
 
 import org.junit.Test;
 
-import junit.framework.Assert;
-
-import static coop.jcfoodcoop.reporting.zone7.Zone7Parser.PER_PRICE_PATTERN;
+import static coop.jcfoodcoop.reporting.zone7.Zone7DocxParser.PER_PRICE_PATTERN;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
  * @author akrieg
  */
-public class Zone7ParserTest {
+public class Zone7DocxParserTest {
 
     @Test
     public final void testParse() throws Exception {
         File outfile = File.createTempFile("frodo", "txt");
-        Zone7Parser parser = new Zone7Parser();
+        Zone7DocxParser parser = new Zone7DocxParser();
         parser.parse("src/test/resources/zone7.docx", "zone7.csv");
 
         BufferedReader reader = new BufferedReader(new FileReader(outfile));
@@ -41,7 +39,7 @@ public class Zone7ParserTest {
 
     @Test
     public final void testDollarPerMatch() throws Exception {
-        assertEquals("(\\$\\d+\\.?\\d* / [^\\.,~\\(]*)", Zone7Parser.PRICE_PER_PATTERN.pattern());
+        assertEquals("(\\$\\d+\\.?\\d* / [^\\.,~\\(]*)", Zone7DocxParser.PRICE_PER_PATTERN.pattern());
 
 
     }

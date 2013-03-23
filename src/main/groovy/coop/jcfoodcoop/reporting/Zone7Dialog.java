@@ -7,10 +7,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -24,9 +27,11 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import coop.jcfoodcoop.reporting.zone7.Zone7Parser;
+import coop.jcfoodcoop.reporting.zone7.Zone7PdfParser;
 
 public class Zone7Dialog extends JDialog {
+    public static final String PARSER_PROPS = "parser.props";
+    public static final String LAST_FILE = "last.file";
     private JPanel contentPane;
     private JButton buttonOK;
     private JPanel topLabelPanel;
@@ -43,6 +48,7 @@ public class Zone7Dialog extends JDialog {
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
         statusLabel.setVisible(false);
+        lastDirectory = findLastDirectory();
 
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -68,13 +74,15 @@ public class Zone7Dialog extends JDialog {
             public void actionPerformed(ActionEvent actionEvent) {
                 JFileChooser chooser = new JFileChooser(lastDirectory);
                 FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                        "Word 2007 Files", "docx");
+                        "PDF Files", "pdf");
                 chooser.setFileFilter(filter);
+                chooser.setCurrentDirectory(new File(findLastDirectory()));
                 int returnVal = chooser.showOpenDialog(Zone7Dialog.this);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
 
                     final File selectedFile = chooser.getSelectedFile();
                     lastDirectory = selectedFile.getParent();
+                    saveLastDir(lastDirectory);
                     fileNameBox.setText(selectedFile.getAbsolutePath());
                     //Run button is set if both text boxes have content
                     buttonOK.setEnabled(fileNameBox.getText().trim() != null);
@@ -85,6 +93,75 @@ public class Zone7Dialog extends JDialog {
 
     }
 
+    /**
+     * We try to save the last directory that was selected so that the user doesn't always have to
+     * navigate to the same directory each time.  If this fails, just returns null
+     */
+    private String findPropertiesFile(){
+        String userHome = System.getProperty("user.dir");
+            File parserDir = new File(userHome+"/.jccoop");
+            if (!parserDir.exists()) {
+                if (parserDir.mkdir()) {
+                    return getOrCreatePropsFile(parserDir);
+                }
+            } else {
+                return getOrCreatePropsFile(parserDir);
+            }
+        return null;
+
+    }
+
+    private String findLastDirectory() {
+        String propFile = findPropertiesFile();
+        if (propFile != null) {
+            Properties props = null;
+            try {
+                props = loadProperties(propFile);
+                String lastFile = props.getProperty(LAST_FILE);
+                if (lastFile != null) {
+                    return lastFile;
+                }
+            } catch (IOException e) {
+            }
+
+        }
+        return System.getProperty("user.dir");
+
+    }
+
+    private Properties loadProperties(String propFile) throws IOException {
+        Properties props = new Properties();
+        props.load(new FileReader(propFile));
+        return props;
+
+    }
+
+    private void saveLastDir(String directory) {
+        String propFile = findPropertiesFile();
+        if (propFile != null) {
+            Properties props = null;
+            try {
+                props = loadProperties(propFile);
+                props.setProperty(LAST_FILE, directory);
+                props.store(new FileWriter(propFile), "Properties for Parser");
+            } catch (IOException e) {
+            }
+
+        }
+    }
+
+    private String getOrCreatePropsFile(File parserDir) {
+        File propsFile = new File(parserDir, PARSER_PROPS);
+        try {
+
+        if (propsFile.exists() || propsFile.createNewFile()) {
+                return propsFile.getPath();
+
+        }
+        }catch (IOException e) {}
+        return null;
+    }
+
     private void onOK() {
         final String inFile = fileNameBox.getText();
         final String outputFile = "zone7-update-"+format.format(new Date())+".csv";
@@ -93,7 +170,7 @@ public class Zone7Dialog extends JDialog {
                 new Runnable() {
 
                     public void run() {
-                        Zone7Parser z7Parser = new Zone7Parser();
+                        Zone7PdfParser z7Parser = new Zone7PdfParser();
                         try {
                             z7Parser.parse(inFile, outputFile);
                             SwingUtilities.invokeLater(new Runnable() {
