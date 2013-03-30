@@ -26,6 +26,7 @@ public class ProductDialog extends JDialog {
     private JTextField updateFileNameBox;
     private JTextField frontierFilenameBox;
     private JButton findFrontierButton;
+    private JComboBox supplierBox;
 
     /**
      * When we select a file to load, save the directory it's in for convenience when selecting the other file.

@@ -1,4 +1,4 @@
-package coop.jcfoodcoop.invoices
+package coop.jcfoodcoop.invoicing
 import au.com.bytecode.opencsv.CSVWriter
 import org.apache.poi.ss.usermodel.*
 
@@ -51,6 +51,7 @@ class ExcelParseContext {
             csvOut.writeNext(writeItemToRow(order, createFeeItem(order)).toArray(new String[0]))
 
         }
+        csvOut.close()
     }
 
     InvoiceItem createFeeItem(Order o) {
