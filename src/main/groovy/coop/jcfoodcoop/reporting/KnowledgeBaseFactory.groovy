@@ -7,10 +7,10 @@ import au.com.bytecode.opencsv.CSVReader
  * @author akrieg
  */
 class KnowledgeBaseFactory {
-    public static KnowledgeBase parseCsv(String file) {
+    public static KnowledgeBase parseCsv(Reader reader) {
         KnowledgeBase b = new KnowledgeBase();
 
-        parseCsv(file, b)
+        parseCsv(reader, b)
         
         return b;
 
@@ -18,12 +18,12 @@ class KnowledgeBaseFactory {
 
     /**
      * Adds to an existing KnowledgeBase
-     * @param file
+     * @param read
      * @param b
      */
-    public static void parseCsv(String file, KnowledgeBase b) {
+    public static void parseCsv(Reader read, KnowledgeBase b) {
         boolean headerEncountered = false
-        CSVReader reader = new CSVReader(new FileReader(file))
+        CSVReader reader = new CSVReader(read)
         reader.readAll().each {
             String[] cells ->
             if (headerEncountered) {

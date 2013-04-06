@@ -1,9 +1,11 @@
 package coop.jcfoodcoop.invoicing
+
 import au.com.bytecode.opencsv.CSVWriter
 import org.apache.poi.ss.usermodel.*
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+
 /**
  * From
  *  Code	Qty	Split units	Category	Subcategory	2<sup>nd</sup> Subcategory	Manufacturer	Description	Size	Comment	Order price	Actual price	Actual unit price	Item total
@@ -119,37 +121,42 @@ class ExcelParseContext {
         List<InvoiceItem> items = new LinkedList<InvoiceItem>()
         o.items = items
         while (rowIter.hasNext()) {
-            Row row = rowIter.next()
-            String val = formatter.formatCellValue(row.getCell(0))
-            if (state == ParseState.BEGIN && "Code".equals(val)) {
-                state = ParseState.IN_ITEMS //We're now parsing the items in the invoice
-                continue
-            }
-            Matcher m = totQtyReceivedRegex.matcher(val)
-            if (state == ParseState.IN_ITEMS && m.find()) {
-                state = ParseState.IN_TOTAL
-
-
-                def invoiceRow = rowIter.next()
-                def invoice = formatter.formatCellValue(invoiceRow.getCell(1))
-                def feeRow = rowIter.next()
-                def fee = formatter.formatCellValue(feeRow.getCell(1))
-                def totalRow = rowIter.next()
-                def total = totalRow.getCell(1).getNumericCellValue()
-                System.out.println("Name:${name}: invoice = ${invoice}, fee ${fee}, total = ${total}")
-
-                o.total = total
-                o.fees = feeRow.getCell(1).getNumericCellValue()
-                o.invoiceTotal = invoiceRow.getCell(1).getNumericCellValue()
-                Matcher feeMatcher = procFeeRegex.matcher(feeRow.getCell(0).getStringCellValue())
-
-                if (feeMatcher.find()) {
-                    o.feeRate = Double.valueOf(feeMatcher.group(1)) / 100.0
+            try {
+                Row row = rowIter.next()
+                String val = formatter.formatCellValue(row.getCell(0))
+                if (state == ParseState.BEGIN && "Code".equals(val)) {
+                    state = ParseState.IN_ITEMS //We're now parsing the items in the invoice
+                    continue
                 }
+                Matcher m = totQtyReceivedRegex.matcher(val)
+                if (state == ParseState.IN_ITEMS && m.find()) {
+                    state = ParseState.IN_TOTAL
 
 
-            } else if (row.getCell(0) != null) {
-                items.add(createInvoiceItem(row))
+                    def invoiceRow = rowIter.next()
+                    def invoice = formatter.formatCellValue(invoiceRow.getCell(1))
+                    def feeRow = rowIter.next()
+                    def fee = formatter.formatCellValue(feeRow.getCell(1))
+                    def totalRow = rowIter.next()
+                    def total = totalRow.getCell(1).getNumericCellValue()
+                    System.out.println("Name:${name}: invoice = ${invoice}, fee ${fee}, total = ${total}")
+
+                    o.total = total
+                    o.fees = feeRow.getCell(1).getNumericCellValue()
+                    o.invoiceTotal = invoiceRow.getCell(1).getNumericCellValue()
+                    Matcher feeMatcher = procFeeRegex.matcher(feeRow.getCell(0).getStringCellValue())
+
+                    if (feeMatcher.find()) {
+                        o.feeRate = Double.valueOf(feeMatcher.group(1)) / 100.0
+                    }
+
+
+                } else if (row.getCell(0) != null) {
+                    items.add(createInvoiceItem(row))
+
+                }
+            } catch (RuntimeException e) {
+                throw new RuntimeException("Exception occurred processing " + name, e)
 
             }
 
@@ -233,7 +240,13 @@ class ExcelParseContext {
             //Add manufacturer to description
             item.description = formatter.formatCellValue(row.getCell(6)) + " " + formatter.formatCellValue(row.getCell(7))
             item.qty = row.getCell(1).getNumericCellValue()
-            item.rate = row.getCell(11).getNumericCellValue() //Actual Price
+            String actualPriceString = formatter.formatCellValue(row.getCell(11))
+            double actualPrice = 0.0
+            //Sometime n/a shows up here
+            if (!"Out- of- stock".equals(actualPriceString)) {
+                actualPrice = Double.valueOf(actualPriceString)
+            }
+            item.rate = actualPrice
             item.total = row.getCell(13).getNumericCellValue() //Item total
             item
         }

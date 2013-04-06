@@ -121,11 +121,16 @@ public class ProductDialog extends JDialog {
         dispose();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         ProductDialog dialog = new ProductDialog();
         dialog.pack();
+        dialog.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         dialog.setVisible(true);
-        System.exit(0);
+        synchronized (dialog) {
+            dialog.wait();
+        }
+
+        //     System.exit(0);
     }
 
     /**

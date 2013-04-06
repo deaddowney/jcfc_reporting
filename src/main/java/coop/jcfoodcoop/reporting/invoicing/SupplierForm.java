@@ -145,11 +145,14 @@ public class SupplierForm extends JFrame {
     private void onCancel() {
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         SupplierForm dialog = new SupplierForm();
         dialog.pack();
         dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         dialog.setVisible(true);
+        synchronized (dialog) {
+            dialog.wait();
+        }
 
 
         System.exit(0);
