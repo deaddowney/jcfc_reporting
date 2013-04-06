@@ -7,7 +7,7 @@
     <groupId>coop.jcfoodcoop</groupId>
     <artifactId>Reporting</artifactId>
     <name>Reporting</name>
-    <version>1.0</version>
+    <version>1.0.0</version>
     <dependencies>
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
