@@ -35,6 +35,10 @@ public class ParseLancasterScreen {
     private JButton runButton;
     private String lastDirectory = System.getProperty("user.dir");
 
+    public JPanel getMainPane() {
+        return mainPane;
+    }
+
     public ParseLancasterScreen() {
         launchFileChooserButton.addActionListener(new ActionListener() {
             @Override
