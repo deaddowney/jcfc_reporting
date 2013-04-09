@@ -101,7 +101,7 @@ public class SupplierForm {
         final String invoiceFile = filenameBox.getText();
         final String supplier = (String) supplierBox.getSelectedItem();
         SimpleDateFormat format = new SimpleDateFormat("MM-dd-yyy");
-        final File outFile = new File(supplier + "-" + format.format(new Date()) + ".csv");
+        final File outFile = new File(lastDirectory, supplier + "-" + format.format(new Date()) + ".csv");
         SwingWorker<?, ?> worker = new SwingWorker<Object, Object>() {
 
             @Override
