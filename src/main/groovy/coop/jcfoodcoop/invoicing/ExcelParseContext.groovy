@@ -42,8 +42,7 @@ class ExcelParseContext {
         csvOut.writeNext(createHeader().toArray(new String[0]))
         for (int i = 0; i < sourceBook.numberOfSheets; i++) {
             def sheet = sourceBook.getSheetAt(i)
-            def order = parseSheet(sheet)
-            order.vendor = vendor
+            def order = parseSheet(sheet, vendor)
 
             for (InvoiceItem item : order.items) {
                 List<String> row = writeItemToRow(order, item)
@@ -99,7 +98,7 @@ class ExcelParseContext {
 
     }
 
-    private Order parseSheet(Sheet sheet) {
+    private Order parseSheet(Sheet sheet, String vendor) {
         //The spreadsheet format looks like:
         /**
          * Lisa Clarke
@@ -115,7 +114,8 @@ class ExcelParseContext {
 
         def state = ParseState.BEGIN
         Order o = new Order()
-        o.id = ID_PREFIX + "-" + idCounter++
+        o.vendor = vendor
+        o.id = prefix(vendor)+"-"+ID_PREFIX + "-" + idCounter++
         o.customer = name
 
         List<InvoiceItem> items = new LinkedList<InvoiceItem>()
@@ -163,6 +163,13 @@ class ExcelParseContext {
 
         }
         return o
+    }
+
+    /**
+     * @return first 3 characters of the vendor in uppercase, e.g. Lancaster -> LAN
+     */
+    def prefix(String vendor) {
+        vendor.toUpperCase().substring(0, 3)
     }
 
     public InvoiceItem createInvoiceItem(Row row) {
