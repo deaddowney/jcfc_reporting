@@ -58,8 +58,8 @@ class ExcelParseContext {
     InvoiceItem createFeeItem(Order o) {
         InvoiceItem item = new InvoiceItem()
         item.description = "PayPal Fee"
-        item.qty = o.invoiceTotal
-        item.rate = o.feeRate
+        item.qty = 1
+        item.rate = o.fees
         item.accountCode = 777 //PayPal Expense
         return item
     }
@@ -255,6 +255,11 @@ class ExcelParseContext {
             }
             item.rate = actualPrice
             item.total = row.getCell(13).getNumericCellValue() //Item total
+            //Food club has frequent rounding issues.  We do the best we can to stay in sync with
+            //their totals
+            if (Math.abs((int)(item.total*100) - (int)(item.rate*item.qty*100)) >= 1) {
+                item.rate = item.total / item.qty
+            }
             item
         }
 
