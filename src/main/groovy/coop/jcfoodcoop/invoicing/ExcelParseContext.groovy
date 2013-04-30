@@ -48,8 +48,10 @@ class ExcelParseContext {
                 List<String> row = writeItemToRow(order, item)
                 csvOut.writeNext(row.toArray(new String[row.size()]))
             }
-            //Write an extra line for fees
-            csvOut.writeNext(writeItemToRow(order, createFeeItem(order)).toArray(new String[0]))
+            if (order.fees > 0) {
+                //Write an extra line for fees
+                csvOut.writeNext(writeItemToRow(order, createFeeItem(order)).toArray(new String[0]))
+            }
 
         }
         csvOut.close()
@@ -135,19 +137,31 @@ class ExcelParseContext {
 
                     def invoiceRow = rowIter.next()
                     def invoice = formatter.formatCellValue(invoiceRow.getCell(1))
-                    def feeRow = rowIter.next()
-                    def fee = formatter.formatCellValue(feeRow.getCell(1))
-                    def totalRow = rowIter.next()
-                    def total = totalRow.getCell(1).getNumericCellValue()
-                    System.out.println("Name:${name}: invoice = ${invoice}, fee ${fee}, total = ${total}")
-
-                    o.total = total
-                    o.fees = feeRow.getCell(1).getNumericCellValue()
                     o.invoiceTotal = invoiceRow.getCell(1).getNumericCellValue()
-                    Matcher feeMatcher = procFeeRegex.matcher(feeRow.getCell(0).getStringCellValue())
 
-                    if (feeMatcher.find()) {
-                        o.feeRate = Double.valueOf(feeMatcher.group(1)) / 100.0
+                    //The next row contains either the fee, if the fee has been assigned, or the invoice total
+                    def feeRow = rowIter.next() //
+                    def feeDescription = feeRow.getCell(0).getStringCellValue()
+                    if (feeDescription.trim().startsWith("Processing fee")) {
+                        def fee = formatter.formatCellValue(feeRow.getCell(1))
+                        def totalRow = rowIter.next()
+                        def total = totalRow.getCell(1).getNumericCellValue()
+                        System.out.println("Name:${name}: invoice = ${invoice}, fee ${fee}, total = ${total}")
+
+                        o.total = total
+                        o.fees = feeRow.getCell(1).getNumericCellValue()
+                        Matcher feeMatcher = procFeeRegex.matcher(feeRow.getCell(0).getStringCellValue())
+
+                        if (feeMatcher.find()) {
+                            o.feeRate = Double.valueOf(feeMatcher.group(1)) / 100.0
+                        }
+
+
+                    } else {
+                        o.fees = 0.0
+                        o.feeRate = 0.0
+                        o.total = feeRow.getCell(1).getNumericCellValue()
+
                     }
 
 
