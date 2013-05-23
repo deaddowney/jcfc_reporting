@@ -1,6 +1,7 @@
 package coop.jcfoodcoop.invoicing
 
 import au.com.bytecode.opencsv.CSVWriter
+import org.apache.commons.lang.StringUtils
 import org.apache.poi.ss.usermodel.*
 
 import java.util.regex.Matcher
@@ -264,7 +265,7 @@ class ExcelParseContext {
             String actualPriceString = formatter.formatCellValue(row.getCell(11))
             double actualPrice = 0.0
             //Sometime n/a shows up here
-            if (!"Out- of- stock".equals(actualPriceString)) {
+            if (!"Out- of- stock".equals(actualPriceString) && !StringUtils.isEmpty(actualPriceString)) {
                 actualPrice = Double.valueOf(actualPriceString)
             }
             item.rate = actualPrice
