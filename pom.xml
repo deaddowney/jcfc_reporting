@@ -12,8 +12,32 @@
     <artifactId>Reporting</artifactId>
     <name>Reporting</name>
     <version>1.0.0</version>
+    <properties>
+      <scala.version>2.10.1</scala.version>
+    </properties>
+
+    <repositories>
+      <repository>
+        <id>scala-tools.org</id>
+        <name>Scala-Tools Maven2 Repository</name>
+        <url>http://scala-tools.org/repo-releases</url>
+      </repository>
+    </repositories>
+
+    <pluginRepositories>
+      <pluginRepository>
+        <id>scala-tools.org</id>
+        <name>Scala-Tools Maven2 Repository</name>
+        <url>http://scala-tools.org/repo-releases</url>
+      </pluginRepository>
+    </pluginRepositories>
 
     <dependencies>
+        <dependency>
+          <groupId>org.scala-lang</groupId>
+          <artifactId>scala-library</artifactId>
+          <version>${scala.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
@@ -93,13 +117,29 @@
                     <artifactId>xml-apis</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency><dependency><groupId>com.intellij</groupId><artifactId>forms_rt</artifactId><version>7.0.3</version></dependency>
+        </dependency>
+        <dependency><groupId>com.intellij</groupId><artifactId>forms_rt</artifactId><version>7.0.3</version></dependency>
 
 
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+              <groupId>org.scala-tools</groupId>
+              <artifactId>maven-scala-plugin</artifactId>
+              <executions>
+                <execution>
+                  <goals>
+                    <goal>compile</goal>
+                    <goal>testCompile</goal>
+                  </goals>
+                </execution>
+              </executions>
+              <configuration>
+                <scalaVersion>${scala.version}</scalaVersion>
+              </configuration>
+            </plugin>
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-compiler-plugin</artifactId>

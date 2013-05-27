@@ -24,6 +24,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import coop.jcfoodcoop.productupdate.LancasterParser;
+import coop.jcfoodcoop.productupdate.SLancasterParser;
 
 /**
  * @author akrieg
@@ -73,7 +74,7 @@ public class ParseLancasterScreen {
                     @Override
                     protected Object doInBackground() throws Exception {
                         try {
-                            LancasterParser parser = new LancasterParser(invoiceFile, outFile);
+                            SLancasterParser parser = new SLancasterParser(invoiceFile, outFile);
                             parser.parse();
                         } catch (Exception e) {
                             throw new RuntimeException("Exception occurred parsing " + outFile, e);
