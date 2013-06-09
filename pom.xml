@@ -11,7 +11,7 @@
     <groupId>coop.jcfoodcoop</groupId>
     <artifactId>Reporting</artifactId>
     <name>Reporting</name>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <properties>
       <scala.version>2.10.1</scala.version>
     </properties>
@@ -39,9 +39,9 @@
           <version>${scala.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>1.7.0</version>
+          <groupId>org.scalaj</groupId>
+          <artifactId>scalaj-time_2.10.0-M7</artifactId>
+          <version>0.6</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
@@ -128,14 +128,23 @@
             <plugin>
               <groupId>org.scala-tools</groupId>
               <artifactId>maven-scala-plugin</artifactId>
-              <executions>
-                <execution>
-                  <goals>
-                    <goal>compile</goal>
-                    <goal>testCompile</goal>
-                  </goals>
-                </execution>
-              </executions>
+                <executions>
+                    <execution>
+                        <id>scala-compile-first</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>scala-test-compile</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
               <configuration>
                 <scalaVersion>${scala.version}</scalaVersion>
               </configuration>
@@ -149,42 +158,6 @@
                 <target>1.6</target>
               </configuration>
             </plugin>
-      <plugin>
-          <groupId>org.codehaus.gmaven</groupId>
-          <artifactId>gmaven-plugin</artifactId>
-          <version>1.2</version>
-          <configuration>
-            <providerSelection>1.7</providerSelection>
-          </configuration>
-          <dependencies>
-              <dependency>
-                <groupId>org.codehaus.gmaven.runtime</groupId>
-                <artifactId>gmaven-runtime-1.7</artifactId>
-                <version>1.2</version>
-                <exclusions>
-                  <exclusion>
-                    <groupId>org.codehaus.groovy</groupId>
-                    <artifactId>groovy-all</artifactId>
-                  </exclusion>
-                </exclusions>
-              </dependency>
-              <dependency>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-all</artifactId>
-                <version>1.7.0</version>
-              </dependency>
-          </dependencies>
-          <executions>
-              <execution>
-                  <goals>
-                      <goal>generateStubs</goal>
-                      <goal>compile</goal>
-                      <goal>generateTestStubs</goal>
-                      <goal>testCompile</goal>
-                  </goals>
-              </execution>
-          </executions>
-      </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
