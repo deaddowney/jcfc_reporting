@@ -6,7 +6,7 @@ package coop.jcfoodcoop.productupdate
  *
  * @author akrieg
  */
-object SLancasterProductEntryFactory {
+object LancasterProductEntryFactory {
 
     /**
      * We need to strip this out. Lancaster sometimes ends a product desc with this
@@ -50,12 +50,12 @@ object SLancasterProductEntryFactory {
                  subcategory: String,
                  rawDescription:String,
                  price:String,
-                 size:String) : SProductEntry = {
+                 size:String) : ProductEntry = {
 
 
 
 
-        val  entry = new SProductEntry(
+        val  entry = new ProductEntry(
                 category=category,
                 subCategory = subcategory,
                 rawDescription = rawDescription,
@@ -149,7 +149,7 @@ object SLancasterProductEntryFactory {
                     val manComponents = collection.mutable.ListBuffer[String]()
                     for(i<- words.length-1 to 0 -1) {
                         val word = words(i)
-                        if (SProductEntry.units.contains(word.toLowerCase)) {
+                        if (ProductEntry.units.contains(word.toLowerCase)) {
                             return manComponents.mkString(" ")
                         }
                         manComponents.prepend(word)

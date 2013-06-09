@@ -2,7 +2,6 @@ package coop.jcfoodcoop.productupdate
 
 import java.io._
 import java.text.DecimalFormat
-import coop.jcfoodcoop.reporting.{MarkupFactory, LancasterMarkup, ProductEntry, KnowledgeBaseFactory}
 import org.apache.poi.hwpf.HWPFDocument
 import org.apache.poi.hwpf.extractor.WordExtractor
 import scala.collection.mutable.ListBuffer
@@ -10,13 +9,13 @@ import scala.collection.mutable.ListBuffer
 /**
  * @author akrieg
  */
-class SLancasterParser(inputFile:File, outputFile:File) {
+class LancasterParser(inputFile:File, outputFile:File) {
 
 
     def parse() {
         val df = new DecimalFormat("#.00")
 
-        def createLine(count:Int, entry:SProductEntry, markupFactory:MarkupFactory, inStock:Boolean):String = {
+        def createLine(count:Int, entry:ProductEntry, markupFactory:MarkupFactory, inStock:Boolean):String = {
             def genCsvRow(args:Any*) = {
                 //Removes all the commas out of the contents of the cells
                 args.map { (a)=>escapeValue(a) }.mkString(",")
@@ -78,8 +77,8 @@ class SLancasterParser(inputFile:File, outputFile:File) {
         }
         val  doc = new HWPFDocument(new BufferedInputStream(new FileInputStream(inputFile)))
         val ext = new WordExtractor(doc)
-        val entries = collection.mutable.ListBuffer[SProductEntry]()
-        val markup = new LancasterMarkup()
+        val entries = collection.mutable.ListBuffer[ProductEntry]()
+        val markup = LancasterMarkupFactory
 
         def text = ext.getParagraphText
 
@@ -110,7 +109,7 @@ class SLancasterParser(inputFile:File, outputFile:File) {
             }
 
 
-            entries+=(SLancasterProductEntryFactory.fromLine(
+            entries+=(LancasterProductEntryFactory.fromLine(
                                 preparsed.category,
                                 null,
                                 rawDesc,

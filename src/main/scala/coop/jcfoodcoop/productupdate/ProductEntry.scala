@@ -1,6 +1,6 @@
 package coop.jcfoodcoop.productupdate
 
-object SProductEntry {
+object ProductEntry {
 
     /**
      * The Units of Size
@@ -24,7 +24,7 @@ object SProductEntry {
                  size = size
  * @author akrieg
  */
-class SProductEntry(
+class ProductEntry(
                     var category: String,
 
                     /** subcategory as first parsed from the file and before manual fudging */
