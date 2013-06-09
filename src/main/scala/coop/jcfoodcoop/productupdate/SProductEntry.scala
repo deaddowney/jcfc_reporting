@@ -24,7 +24,7 @@ object SProductEntry {
                  size = size
  * @author akrieg
  */
-class SProductEntry(val id:Int, //todo: do we need this guy?
+class SProductEntry(
                     var category: String,
 
                     /** subcategory as first parsed from the file and before manual fudging */
@@ -60,14 +60,13 @@ class SProductEntry(val id:Int, //todo: do we need this guy?
 
     override def toString: String = {
         "ProductEntry{" +
-            "id=" + id +
-            ", category='" + category + '\'' +
+            "category='" + category + '\'' +
             ", subcategory='" + subCategory + '\'' +
             ", manufacturer='" + manufacturer + '\'' +
             ", productDescription='" + productDescription + '\'' +
             ", size='" + size + '\'' +
             ", wholesalePrice='" + wholesalePrice + '\'' +
             ", preorder=" + preorder +
-            '}';
+            '}'
     }
 }

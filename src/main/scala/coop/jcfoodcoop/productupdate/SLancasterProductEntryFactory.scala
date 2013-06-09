@@ -55,7 +55,7 @@ object SLancasterProductEntryFactory {
 
 
 
-        val  entry = new SProductEntry(0,
+        val  entry = new SProductEntry(
                 category=category,
                 subCategory = subcategory,
                 rawDescription = rawDescription,

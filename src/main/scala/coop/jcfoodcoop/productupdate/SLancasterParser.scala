@@ -14,7 +14,7 @@ class SLancasterParser(inputFile:File, outputFile:File) {
 
 
     def parse() {
-        val df = new DecimalFormat("#.00");
+        val df = new DecimalFormat("#.00")
 
         def createLine(count:Int, entry:SProductEntry, markupFactory:MarkupFactory, inStock:Boolean):String = {
             def genCsvRow(args:Any*) = {
@@ -47,7 +47,7 @@ class SLancasterParser(inputFile:File, outputFile:File) {
             } else {
                 wholesalePrice = (wholesalePriceString.substring(1)).toDouble
             }
-            val price = markupFactory.getMarkup(entry) * wholesalePrice;
+            val price = markupFactory.getMarkup(entry) * wholesalePrice
 
             genCsvRow(count, entry.category, entry.subCategory, "", entry.manufacturer, entry.productDescription, "", entry.size,
                     0, //case_units
@@ -144,7 +144,7 @@ class SLancasterParser(inputFile:File, outputFile:File) {
     /**
      * Goes through the document and pulls out the product entries with their categories
      * @param text
-     * @return
+     * @return List of PreparsedEntries
      */
     private def preparseEntries(text:Array[String]) : List[PreParsedProductEntry] = {
         var previousEntryLineNum = 0
@@ -154,7 +154,6 @@ class SLancasterParser(inputFile:File, outputFile:File) {
         for (i <- 0 until text.length) {
             val line = text(i).trim()
             if (!line.isEmpty) {
-                //TODO: Qty: line (0), Description(line1), Price (line 2)
                 if ("Qty:".equals(line)) {
                     /**
                      *  We're in a Product Entry.  The next two lines will describe the entry, e.g.:
