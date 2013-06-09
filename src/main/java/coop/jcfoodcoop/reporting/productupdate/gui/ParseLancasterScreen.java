@@ -23,7 +23,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import coop.jcfoodcoop.productupdate.LancasterParser;
 import coop.jcfoodcoop.productupdate.SLancasterParser;
 
 /**
