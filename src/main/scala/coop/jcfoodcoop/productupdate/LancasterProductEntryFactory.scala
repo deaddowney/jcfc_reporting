@@ -16,6 +16,8 @@ object LancasterProductEntryFactory {
 
     val NOT_PKG_RETAIL = "not packaged for retail"
 
+    val PRICES_FINALIZED = " Price Finalized at Shipping"
+
     val LOOSE_PACKAGING_TRAILER = "note that packaging may be loose"
 
     //Local IPM - Non-Organic
@@ -125,6 +127,10 @@ object LancasterProductEntryFactory {
                 if (idxCrtOrganic >= 0) {
                     desc.trimOffLastSection(idxCrtOrganic)
 
+                }
+                val idxPricesFinalized = desc.lastSection.toLowerCase.indexOf(PRICES_FINALIZED)
+                if (idxPricesFinalized >= 0) {
+                    desc.trimOffLastSection(idxPricesFinalized)
                 }
 
                 val idxNotLabeled = desc.lastSection.toLowerCase.indexOf(NOT_LABELED)

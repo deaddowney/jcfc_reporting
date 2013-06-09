@@ -75,6 +75,13 @@ class LancasterParser(inputFile:File, outputFile:File) {
 
             )
         }
+        /**
+         * Filter out certain entries that we can't sell
+         */
+        def weAccept(ppEntry:PreParsedProductEntry) :Boolean = {
+            !ppEntry.description.contains("PA SALE ONLY") &&
+            !ppEntry.description.contains("Min. week lead time")
+        }
 
         val doc = new HWPFDocument(new BufferedInputStream(new FileInputStream(inputFile)))
         val ext = new WordExtractor(doc)
@@ -86,9 +93,8 @@ class LancasterParser(inputFile:File, outputFile:File) {
 
         val preparsedEntries = preparseEntries(text)
 
-        for(index <-0 until preparsedEntries.length) {
+        for((preparsed, index) <-preparsedEntries.zipWithIndex if weAccept(preparsed)) {
             //Need to copy the categories from the previous line
-            val preparsed = preparsedEntries(index)
 
             val priceDesc = preparsed.priceDesc
             val rawDesc = preparsed.description
