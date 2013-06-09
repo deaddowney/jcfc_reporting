@@ -123,13 +123,10 @@ class SLancasterParser(inputFile:File, outputFile:File) {
 
 
         writer.println("code,category,sub_category,sub_category2,manufacturer,product,short_description,size,case_units,each_size,unit_weight,case_weight,wholesale_price,price,sale_price,unit_price,retail_price,price_per_weight,is_priced_by_weight,valid_price,taxed,upc,origin,image_url,thumb_url,num_available,valid_order_increment,valid_split_increment,last_updated,last_updated_by,last_ordered,num_orders")
-        var count = 0
-        val problems = ListBuffer[SProductEntry]()
-        entries.foreach {(entry) =>
+        entries.zipWithIndex foreach  { case (entry, i) =>
 
             try {
-                writer.println(createLine(count, entry, markup, inStock = true))
-                count+=1
+                writer.println(createLine(i, entry, markup, inStock = true))
             } catch  {
                 case (e:Exception) =>
                 System.out.println("Exception writing entry " + entry)
@@ -137,7 +134,7 @@ class SLancasterParser(inputFile:File, outputFile:File) {
             }
         }
 
-        System.out.println("Printed "+count+" records to "+outputFile)
+        System.out.println("Printed "+entries.size+" records to "+outputFile)
         writer.flush()
         writer.close()
 
