@@ -75,7 +75,8 @@ class LancasterParser(inputFile:File, outputFile:File) {
 
             )
         }
-        val  doc = new HWPFDocument(new BufferedInputStream(new FileInputStream(inputFile)))
+
+        val doc = new HWPFDocument(new BufferedInputStream(new FileInputStream(inputFile)))
         val ext = new WordExtractor(doc)
         val entries = collection.mutable.ListBuffer[ProductEntry]()
         val markup = LancasterMarkupFactory

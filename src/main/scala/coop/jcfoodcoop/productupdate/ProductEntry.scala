@@ -42,7 +42,7 @@ class ProductEntry(
                        )  {
 
     /** e.g. Cheese, Eggs, Apples, etc. */
-    var manufacturer: String = null
+    var manufacturer: String = ""
 
     /**
      * Cheddar, Smoked Goat: $10.50 per lb Misty Creek Dairy - Price Finalized at Shipping
