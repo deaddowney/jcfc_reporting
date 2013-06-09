@@ -192,6 +192,8 @@ object SLancasterProductEntryFactory {
             val catColonIndex = cat.indexOf(":")
             if (catColonIndex > 0 && catColonIndex < cat.length()) {
                 return (cat.substring(0, catColonIndex),  cat.substring(catColonIndex + 1))
+            } else {
+                return (cat, cat) //Fuck it, just make sub category the same as the category
             }
         }
         (cat, subcat)
