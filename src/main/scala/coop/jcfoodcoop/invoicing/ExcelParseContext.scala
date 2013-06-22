@@ -3,7 +3,6 @@ package coop.jcfoodcoop.invoicing
 import org.apache.poi.ss.usermodel._
 import au.com.bytecode.opencsv.CSVWriter
 import java.io.Writer
-import org.apache.commons.lang.StringUtils
 import org.joda.time.format.DateTimeFormat
 import org.scala_tools.time.Imports._
 import scala.collection.mutable.ListBuffer
@@ -237,7 +236,7 @@ object InvoiceItem {
         val actualPriceString = formatter.formatCellValue(row.getCell(11))
         var actualPrice = 0.0
         //Sometime n/a shows up here
-        if (!"Out- of- stock".equals(actualPriceString) && !StringUtils.isEmpty(actualPriceString)) {
+        if (!"Out- of- stock".equals(actualPriceString) && actualPriceString!=null && !actualPriceString.equals("")) {
             actualPrice = actualPriceString.toDouble
         }
         item.rate = actualPrice
