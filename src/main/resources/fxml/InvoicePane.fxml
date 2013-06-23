@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="286.0" prefWidth="512.0" xmlns:fx="http://javafx.com/fxml" fx:controller="coop.jcfoodcoop.gui.controller.InvoiceController">
+  <children>
+    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="435.0" spacing="10.0" AnchorPane.bottomAnchor="93.0" AnchorPane.leftAnchor="38.5" AnchorPane.rightAnchor="38.5" AnchorPane.topAnchor="93.0">
+      <children>
+        <Label text="Invoice File" />
+        <TextField fx:id="fileField" prefWidth="200.0" />
+        <Button fx:id="launchFileExpButton" mnemonicParsing="false" onAction="#onFileOpen" text="..." />
+      </children>
+    </HBox>
+    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="327.5" spacing="20.0" AnchorPane.bottomAnchor="-7.0" AnchorPane.leftAnchor="125.5" AnchorPane.rightAnchor="59.0" AnchorPane.topAnchor="193.0">
+      <children>
+        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+          <children>
+            <Label text="Supplier" />
+            <ChoiceBox fx:id="supplierDropDown">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="Item 1" />
+                  <String fx:value="Item 2" />
+                  <String fx:value="Item 3" />
+                </FXCollections>
+              </items>
+            </ChoiceBox>
+          </children>
+        </HBox>
+        <Button fx:id="runButton" alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#onRunPushed" prefHeight="29.0" prefWidth="52.0" text="Run" textAlignment="JUSTIFY" textOverrun="CLIP" />
+      </children>
+    </HBox>
+  </children>
+</AnchorPane>

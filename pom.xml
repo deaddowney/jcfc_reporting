@@ -11,7 +11,7 @@
     <groupId>coop.jcfoodcoop</groupId>
     <artifactId>Reporting</artifactId>
     <name>Reporting</name>
-    <version>1.1.0</version>
+    <version>2.0-SNAPSHOT</version>
     <properties>
       <scala.version>2.10.1</scala.version>
     </properties>
@@ -22,6 +22,10 @@
         <name>Scala-Tools Maven2 Repository</name>
         <url>http://scala-tools.org/repo-releases</url>
       </repository>
+        <repository>
+            <id>sonatype-snapshot</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -44,6 +48,11 @@
           <version>0.6</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.jfxtras</groupId>
+            <artifactId>jfxtras-labs-8.0</artifactId>
+            <version>8.0-r1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-scratchpad</artifactId>
@@ -72,10 +81,6 @@
            <version>4.8.2</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.intellij</groupId><artifactId>forms_rt</artifactId><version>7.0.3</version></dependency>
-
 
     </dependencies>
 
