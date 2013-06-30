@@ -15,6 +15,9 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import coop.jcfoodcoop.invoicing.ExcelParseContext
 import javax.swing.SwingWorker
 import java.awt.Desktop
+import javafx.concurrent.Task
+import org.controlsfx.dialog.Dialogs
+import java.util.concurrent.{Executors, ExecutorService}
 
 /**
  * @author akrieg
@@ -44,13 +47,10 @@ class InvoiceController {
     @FXML
     def onFileOpen(event: ActionEvent) {
         val fileChooser = new FileChooser()
-/*  todo: this currently does not work
-         val xlsx = new FileChooser.ExtensionFilter("XLSX Files", "xlsx", "xsl")
-
-
+         val xlsx = new FileChooser.ExtensionFilter("XLS Files", "*.xls")
 
           fileChooser.getExtensionFilters.add(xlsx)
-*/
+
 
         //Show save file dialog
         val window = event.getTarget.asInstanceOf[Node].getScene.getWindow
@@ -76,31 +76,30 @@ class InvoiceController {
 
         val outFile: File = new File(lastDirectory, supplier + "-" + format.format(new Date) + ".csv")
 
-
-
-        val worker: SwingWorker[_, _] = new SwingWorker[AnyRef, AnyRef] {
-            protected def doInBackground(): AnyRef = {
-                try {
-                    val book: HSSFWorkbook = new HSSFWorkbook(new FileInputStream(invoiceFile))
-                    val pc: ExcelParseContext = new ExcelParseContext(book, new FileWriter(outFile))
-                    pc.parse(supplier)
-                }
-                catch {
-                    case e: Exception => {
-                        throw new RuntimeException("Exception occurred parsing " + outFile, e)
-                    }
-                }
-                DONE
+        val task = new Task[Unit]() {
+            def call(): Unit = {
+                val book: HSSFWorkbook = new HSSFWorkbook(new FileInputStream(invoiceFile))
+                val pc: ExcelParseContext = new ExcelParseContext(book, new FileWriter(outFile))
+                pc.parse(supplier)
             }
 
-            protected override def done() {
-                get
+            override def succeeded():Unit ={
+                super.succeeded()
                 Desktop.getDesktop.edit(outFile)
 
+            }
 
+            override def failed():Unit = {
+                super.failed()
+                Dialogs.create().
+                    message("Failed to parse "+invoiceFile).
+                    showException(this.getException)
             }
         }
-        worker.execute()
+
+        Executors.newSingleThreadExecutor().execute(task)
+
+
     }
 
     @FXML

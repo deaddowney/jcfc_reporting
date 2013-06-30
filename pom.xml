@@ -13,7 +13,7 @@
     <name>Reporting</name>
     <version>2.0-SNAPSHOT</version>
     <properties>
-      <scala.version>2.10.1</scala.version>
+      <scala.version>2.10.2</scala.version>
     </properties>
 
     <repositories>
@@ -49,9 +49,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.jfxtras</groupId>
-            <artifactId>jfxtras-labs-8.0</artifactId>
-            <version>8.0-r1-SNAPSHOT</version>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>8.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -87,6 +87,17 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>com.zenjava</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>1.5</version>
+                <configuration>
+                    <mainClass>coop.jcfoodcoop.reporting.gui.MainController</mainClass>
+                    <bundleType>ALL</bundleType>
+                    <needShortcut>true</needShortcut>
+                    <needMenu>true</needMenu>
+                </configuration>
+            </plugin>
+            <plugin>
               <groupId>org.scala-tools</groupId>
               <artifactId>maven-scala-plugin</artifactId>
                 <executions>
@@ -115,8 +126,8 @@
               <artifactId>maven-compiler-plugin</artifactId>
               <version>3.1</version>
               <configuration>
-                <source>1.6</source>
-                <target>1.6</target>
+                <source>1.8</source>
+                <target>1.8</target>
               </configuration>
             </plugin>
         <plugin>
@@ -167,7 +178,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>1.5</version>
                 <configuration>
-                    <mainClass>coop.jcfoodcoop.reporting.gui.ReportingGUI</mainClass>
+                    <mainClass>coop.jcfoodcoop.reporting.gui.MainController</mainClass>
                 </configuration>
             </plugin>
     </plugins>

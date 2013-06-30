@@ -6,12 +6,17 @@ import javafx.scene.control.{Button, TextField}
 import javafx.event.ActionEvent
 import javafx.stage.FileChooser
 import javafx.scene.Node
-import java.io.File
+import java.io.{FileWriter, FileInputStream, File}
 import java.text.SimpleDateFormat
 import java.lang.Object
 import coop.jcfoodcoop.productupdate.LancasterParser
 import javax.swing.{SwingWorker, JOptionPane}
 import java.awt.Desktop
+import javafx.concurrent.Task
+import org.apache.poi.hssf.usermodel.HSSFWorkbook
+import coop.jcfoodcoop.invoicing.ExcelParseContext
+import org.controlsfx.dialog.Dialogs
+import java.util.concurrent.Executors
 
 /**
  * @author akrieg
@@ -38,13 +43,11 @@ class LancasterController {
       @FXML
       def onFileOpen(event:ActionEvent) {
           val fileChooser = new FileChooser()
-  /*  todo: this currently does not work
-           val xlsx = new FileChooser.ExtensionFilter("XLSX Files", "xlsx", "xsl")
+          val xlsx = new FileChooser.ExtensionFilter("Word Files", "*.docx", "*.doc")
 
 
 
             fileChooser.getExtensionFilters.add(xlsx)
-  */
 
           //Show save file dialog
           val window = event.getTarget.asInstanceOf[Node].getScene.getWindow
@@ -66,37 +69,28 @@ class LancasterController {
 
           val outFile: File = new File(invoiceFile.getParent, "Lancaster-" + format.format(new Date) + ".csv")
 
-
-          val worker: SwingWorker[_, _] = new SwingWorker[AnyRef, AnyRef] {
-              protected def doInBackground: AnyRef = {
-                  try {
-                      val parser: LancasterParser = new LancasterParser(invoiceFile, outFile)
-                      parser.parse
-                  }
-                  catch {
-                      case e: Exception => {
-                          throw new RuntimeException("Exception occurred parsing " + outFile, e)
-                      }
-                  }
-                  return null
+          val task = new Task[Unit]() {
+              def call(): Unit = {
+                  val parser: LancasterParser = new LancasterParser(invoiceFile, outFile)
+                  parser.parse
               }
 
-              protected override def done {
-                  try {
-                      get
-                      Desktop.getDesktop.edit(outFile)
-                  }
-                  catch {
-                      case e: Exception => {
-                          e.printStackTrace
-                      }
-                  }
+              override def succeeded():Unit ={
+                  super.succeeded()
+                  Desktop.getDesktop.edit(outFile)
+
+              }
+
+              override def failed():Unit = {
+                  super.failed()
+                  Dialogs.create().
+                      message("Failed to parse "+invoiceFile).
+                      showException(this.getException)
               }
           }
 
+          Executors.newSingleThreadExecutor().execute(task)
 
-
-          worker.execute
       }
 
       @FXML
