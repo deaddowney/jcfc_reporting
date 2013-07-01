@@ -41,15 +41,15 @@ class InvoiceController {
     @FXML
     private var runButton: Button = null
 
-    @FXML
-    private var imageBox2: ImageView = null
-
     private var lastDirectory: String = System.getProperty("user.dir")
     @FXML
     private var supplierDropDown: ChoiceBox[String] = null
 
     @FXML
-    def onFileOpen(event: ActionEvent) {
+    var imageBox2: ImageView = null
+
+    @FXML
+    def onFileOpen(event: ActionEvent)= {
         val fileChooser = new FileChooser()
         val xlsx = new FileChooser.ExtensionFilter("XLS Files", "*.xls")
 
@@ -68,7 +68,7 @@ class InvoiceController {
     }
 
     @FXML
-    def onRunPushed(event: ActionEvent) {
+    def onRunPushed(event: ActionEvent)= {
         val invoiceFile: String = fileField.getText
 
 
@@ -107,7 +107,7 @@ class InvoiceController {
     }
 
     @FXML
-    def initialize() {
+    def initialize()= {
         if(imageBox2==null) { throw new IllegalArgumentException("imageBox was null")}
 
         val supplierMap =new mutable.HashMap[String, Image]()
@@ -126,7 +126,6 @@ class InvoiceController {
         supplierDropDown.valueProperty().addListener(new ChangeListener[String] {
             def changed(p1: ObservableValue[_ <: String], p2: String, p3: String) {
                 if (p3!=null && supplierMap(p3) !=null) {
-                    System.out.println(s"ImageBox = $imageBox2, supplierMap(p3)= ${supplierMap(p3)}")
                     imageBox2.setImage(supplierMap(p3))
                 }
             }
