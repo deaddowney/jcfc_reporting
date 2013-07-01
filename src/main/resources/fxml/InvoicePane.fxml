@@ -4,12 +4,13 @@
 <?import java.util.*?>
 <?import javafx.collections.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
 <AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="286.0" prefWidth="512.0" xmlns:fx="http://javafx.com/fxml" fx:controller="coop.jcfoodcoop.gui.controller.InvoiceController">
   <children>
-    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="435.0" spacing="10.0" AnchorPane.bottomAnchor="92.5" AnchorPane.leftAnchor="38.5" AnchorPane.rightAnchor="38.5" AnchorPane.topAnchor="93.5">
+    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="435.0" spacing="10.0" AnchorPane.bottomAnchor="58.0" AnchorPane.leftAnchor="38.5" AnchorPane.rightAnchor="38.5" AnchorPane.topAnchor="128.0">
       <children>
         <Label text="Invoice File" />
         <TextField fx:id="fileField" prefWidth="200.0" />
@@ -39,5 +40,10 @@
         </AnchorPane>
       </children>
     </HBox>
+    <ImageView fx:id="imageBox2" fitHeight="105.99999961206467" fitWidth="141.3333282470703" layoutX="53.0" layoutY="22.0" pickOnBounds="true" preserveRatio="true">
+      <image>
+        <Image url="@../images/Regional.jpeg" />
+      </image>
+    </ImageView>
   </children>
 </AnchorPane>

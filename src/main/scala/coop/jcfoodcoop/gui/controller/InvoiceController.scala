@@ -13,17 +13,18 @@ import java.text.SimpleDateFormat
 import java.io.{FileWriter, FileInputStream, File}
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import coop.jcfoodcoop.invoicing.ExcelParseContext
-import javax.swing.SwingWorker
 import java.awt.Desktop
 import javafx.concurrent.Task
 import org.controlsfx.dialog.Dialogs
-import java.util.concurrent.{Executors, ExecutorService}
+import java.util.concurrent.Executors
+import javafx.scene.image.{Image, ImageView}
+import javafx.beans.value.{ObservableValue, ChangeListener}
+import scala.collection.mutable
 
 /**
  * @author akrieg
  */
 class InvoiceController {
-    private final val DONE: AnyRef = new AnyRef
 
     @FXML
     private var resources: ResourceBundle = null
@@ -40,6 +41,9 @@ class InvoiceController {
     @FXML
     private var runButton: Button = null
 
+    @FXML
+    private var imageBox2: ImageView = null
+
     private var lastDirectory: String = System.getProperty("user.dir")
     @FXML
     private var supplierDropDown: ChoiceBox[String] = null
@@ -47,9 +51,9 @@ class InvoiceController {
     @FXML
     def onFileOpen(event: ActionEvent) {
         val fileChooser = new FileChooser()
-         val xlsx = new FileChooser.ExtensionFilter("XLS Files", "*.xls")
+        val xlsx = new FileChooser.ExtensionFilter("XLS Files", "*.xls")
 
-          fileChooser.getExtensionFilters.add(xlsx)
+        fileChooser.getExtensionFilters.add(xlsx)
 
 
         //Show save file dialog
@@ -83,16 +87,16 @@ class InvoiceController {
                 pc.parse(supplier)
             }
 
-            override def succeeded():Unit ={
+            override def succeeded(): Unit = {
                 super.succeeded()
                 Desktop.getDesktop.edit(outFile)
 
             }
 
-            override def failed():Unit = {
+            override def failed(): Unit = {
                 super.failed()
                 Dialogs.create().
-                    message("Failed to parse "+invoiceFile).
+                    message("Failed to parse " + invoiceFile).
                     showException(this.getException)
             }
         }
@@ -104,6 +108,13 @@ class InvoiceController {
 
     @FXML
     def initialize() {
+        if(imageBox2==null) { throw new IllegalArgumentException("imageBox was null")}
+
+        val supplierMap =new mutable.HashMap[String, Image]()
+        supplierMap.put("Tuesday Suppliers",new Image("/images/Regional.jpeg"))
+
+        supplierMap.put("Lancaster Farm Fresh",new Image("/images/lancaster.jpg"))
+        supplierMap.put("Zone 7" ,new Image("/images/Zone7.jpeg"))
 
         supplierDropDown.setItems(FXCollections.
             observableArrayList(
@@ -112,6 +123,14 @@ class InvoiceController {
             "Zone 7")
         )
         supplierDropDown.getSelectionModel.select(0)
+        supplierDropDown.valueProperty().addListener(new ChangeListener[String] {
+            def changed(p1: ObservableValue[_ <: String], p2: String, p3: String) {
+                if (p3!=null && supplierMap(p3) !=null) {
+                    System.out.println(s"ImageBox = $imageBox2, supplierMap(p3)= ${supplierMap(p3)}")
+                    imageBox2.setImage(supplierMap(p3))
+                }
+            }
+        })
 
         runButton.disableProperty().set(true)
 

@@ -12,7 +12,7 @@ import scala.collection.mutable.ListBuffer
 class LancasterParser(inputFile:File, outputFile:File) {
 
 
-    def parse() {
+    def parse() :Int =  {
         val df = new DecimalFormat("#.00")
 
         def createLine(count:Int, entry:ProductEntry, markupFactory:MarkupFactory, inStock:Boolean):String = {
@@ -140,9 +140,10 @@ class LancasterParser(inputFile:File, outputFile:File) {
             }
         }
 
-        System.out.println("Printed "+entries.size+" records to "+outputFile)
         writer.flush()
         writer.close()
+
+        entries.size
 
     }
 
