@@ -8,7 +8,6 @@ import javafx.event.ActionEvent
 import javafx.collections.FXCollections
 import javafx.stage.FileChooser
 import javafx.scene.Node
-import scala.Predef.String
 import java.text.SimpleDateFormat
 import java.io.{FileWriter, FileInputStream, File}
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
@@ -19,7 +18,7 @@ import org.controlsfx.dialog.Dialogs
 import java.util.concurrent.Executors
 import javafx.scene.image.{Image, ImageView}
 import javafx.beans.value.{ObservableValue, ChangeListener}
-import scala.collection.mutable
+import scala.collection.{immutable, mutable}
 
 /**
  * @author akrieg
@@ -107,14 +106,13 @@ class InvoiceController {
     }
 
     @FXML
-    def initialize()= {
+    def initialize() {
         if(imageBox2==null) { throw new IllegalArgumentException("imageBox was null")}
 
-        val supplierMap =new mutable.HashMap[String, Image]()
-        supplierMap.put("Tuesday Suppliers",new Image("/images/Regional.jpeg"))
-
-        supplierMap.put("Lancaster Farm Fresh",new Image("/images/lancaster.jpg"))
-        supplierMap.put("Zone 7" ,new Image("/images/Zone7.jpeg"))
+        val supplierMap = Map(
+            "Tuesday Suppliers" -> new Image("/images/Regional.jpeg"),
+            "Lancaster Farm Fresh" ->new Image("/images/lancaster.jpg"),
+            "Zone 7" -> new Image("/images/Zone7.jpeg"))
 
         supplierDropDown.setItems(FXCollections.
             observableArrayList(
@@ -132,6 +130,12 @@ class InvoiceController {
         })
 
         runButton.disableProperty().set(true)
+
+        launchFileExpButton.setOnAction(new javafx.event.EventHandler[ActionEvent]{
+            def handle(p1: ActionEvent) {
+                onFileOpen(p1)
+            }
+        })
 
 
     }
