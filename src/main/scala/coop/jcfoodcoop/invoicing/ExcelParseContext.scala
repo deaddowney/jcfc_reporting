@@ -159,9 +159,9 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
 
 
                     } else {
-                        o.fees = 0.0
-                        o.feeRate = 0.0
-                        o.total = feeRow.getCell(1).getNumericCellValue
+                        o.feeRate = 0.035
+                        o.fees = o.invoiceTotal * o.feeRate
+                        o.total = o.invoiceTotal + o.fees
 
                     }
 
