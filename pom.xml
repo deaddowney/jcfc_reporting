@@ -11,7 +11,7 @@
     <groupId>coop.jcfoodcoop</groupId>
     <artifactId>Reporting</artifactId>
     <name>Reporting</name>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 
     <dependencies>
         <dependency>
@@ -24,17 +24,6 @@
             <artifactId>joda-time</artifactId>
             <version>1.6.2</version>
         </dependency>
-        <dependency>
-            <groupId>jfree</groupId>
-            <artifactId>jfreechart</artifactId>
-            <version>1.0.13</version>
-        </dependency>
-        <!-- tikka for parsing documents -->
-        <dependency>
-           <groupId>org.apache.tika</groupId>
-           <artifactId>tika-parsers</artifactId>
-           <version>1.1</version>
-         </dependency>
 
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -51,11 +40,6 @@
                     <artifactId>xml-apis</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.docx4j</groupId>
-            <artifactId>docx4j</artifactId>
-            <version>2.8.1</version>
         </dependency>
         <!-- for parsing PDF files -->
         <dependency>
@@ -76,24 +60,8 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-        	<groupId>org.docx4j</groupId>
-        	<artifactId>docx4j</artifactId>
-        	<version>2.8.1</version>
-        </dependency>
 
-
-        <dependency>
-        	<groupId>org.odftoolkit</groupId>
-        	<artifactId>odfdom-java</artifactId>
-        	<version>0.8.6</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency><dependency><groupId>com.intellij</groupId><artifactId>forms_rt</artifactId><version>7.0.3</version></dependency>
+    <dependency><groupId>com.intellij</groupId><artifactId>forms_rt</artifactId><version>7.0.3</version></dependency>
 
 
     </dependencies>
