@@ -73,34 +73,34 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
 
     def createHeader(): List[String] = {
         val header = new ListBuffer[String]()
-        header += ("ContactName")
-        header += ("EmailAddress")
-        header += ("POAddressLine1")
-        header += ("POAddressLine2")
-        header += ("POAddressLine3")
-        header += ("POAddressLine4")
-        header += ("POCity")
-        header += ("PORegion")
-        header += ("POPostalCode")
-        header += ("POCountry")
-        header += ("InvoiceNumber")
-        header += ("Reference")
+        header += "ContactName"
+        header += "EmailAddress"
+        header += "POAddressLine1"
+        header += "POAddressLine2"
+        header += "POAddressLine3"
+        header += "POAddressLine4"
+        header += "POCity"
+        header += "PORegion"
+        header += "POPostalCode"
+        header += "POCountry"
+        header += "InvoiceNumber"
+        header += "Reference"
 
-        header += ("InvoiceDate")
-        header += ("DueDate")
-        header += ("Total")
+        header += "InvoiceDate"
+        header += "DueDate"
+        header += "Total"
 
-        header += ("Description")
-        header += ("Quantity")
-        header += ("UnitAmount")
-        header += ("Discount")
-        header += ("AccountCode")
-        header += ("TaxType") //TaxType
-        header += ("TaxAmount") //TaxAmount
-        header += ("TrackingName1") //TrackingName1
-        header += ("TrackingOption1") //TrackingOption1
-        header += ("TrackingName2") //TrackingName2
-        header += ("TrackingOption2") //TrackingOption2
+        header += "Description"
+        header += "Quantity"
+        header += "UnitAmount"
+        header += "Discount"
+        header += "AccountCode"
+        header += "TaxType" //TaxType
+        header += "TaxAmount" //TaxAmount
+        header += "TrackingName1" //TrackingName1
+        header += "TrackingOption1" //TrackingOption1
+        header += "TrackingName2" //TrackingName2
+        header += "TrackingOption2" //TrackingOption2
         header.toList
 
     }
@@ -166,8 +166,8 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
                     }
 
 
-                } else if (row.getCell(0) != null && state == ParseState.IN_ITEMS) {
-                    items += (createInvoiceItem(row))
+                } else if (row.getCell(1) != null && state == ParseState.IN_ITEMS) {
+                    items += createInvoiceItem(row)
 
                 }
             }
@@ -190,33 +190,33 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
 
     def writeItemToRow(order: Order, item: InvoiceItem): List[String] = {
         val row = new ListBuffer[String]()
-        row += (order.customer)
-        row += ("") //Email
-        row += ("") //POAddress1
-        row += ("") //POAddress2
-        row += ("") //POAddress3
-        row += ("") //POAddress4
-        row += ("") //POCity
-        row += ("") //PORegion
-        row += ("") //POPostalCode
-        row += ("") //POCountry
+        row += order.customer
+        row += "" //Email
+        row += "" //POAddress1
+        row += "" //POAddress2
+        row += "" //POAddress3
+        row += "" //POAddress4
+        row += "" //POCity
+        row += "" //PORegion
+        row += "" //POPostalCode
+        row += "" //POCountry
 
-        row += (order.id) //InvoiceNumber
-        row += (order.vendor) // Reference
-        row += (ExcelParseContext.DATE) //InvoiceDate
-        row += (ExcelParseContext.DUE_DATE) // Due Date
-        row += ("") // Total
-        row += (item.description) // Description
-        row += (String.valueOf(item.qty)) //Quantity
-        row += (String.valueOf(item.rate)) //UnitAmount
-        row += ("") //Discount
-        row += (String.valueOf(item.accountCode)) //AccountCode
-        row += ("Tax Exempt") //TaxType
-        row += ("0") //TaxAmount
-        row += ("") //TrackingName1
-        row += ("") //TrackingOption1
-        row += ("") //TrackingName2
-        row += ("") //TrackingOption2
+        row += order.id //InvoiceNumber
+        row += order.vendor // Reference
+        row += ExcelParseContext.DATE //InvoiceDate
+        row += ExcelParseContext.DUE_DATE // Due Date
+        row += "" // Total
+        row += item.description // Description
+        row += String.valueOf(item.qty) //Quantity
+        row += String.valueOf(item.rate) //UnitAmount
+        row += "" //Discount
+        row += String.valueOf(item.accountCode) //AccountCode
+        row += "Tax Exempt" //TaxType
+        row += "0" //TaxAmount
+        row += "" //TrackingName1
+        row += "" //TrackingOption1
+        row += "" //TrackingName2
+        row += "" //TrackingOption2
         row.toList
 
     }
