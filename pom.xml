@@ -91,11 +91,20 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>1.5</version>
                 <configuration>
+
                     <mainClass>coop.jcfoodcoop.reporting.gui.MainController</mainClass>
                     <bundleType>ALL</bundleType>
                     <needShortcut>true</needShortcut>
                     <needMenu>true</needMenu>
                 </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build-native</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
               <groupId>org.scala-tools</groupId>
