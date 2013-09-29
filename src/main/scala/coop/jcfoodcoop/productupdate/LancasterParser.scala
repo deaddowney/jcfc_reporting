@@ -116,12 +116,12 @@ class LancasterParser(inputFile:File, outputFile:File) {
             }
 
 
-            entries+=(LancasterProductEntryFactory.fromLine(
-                                preparsed.category,
-                                null,
-                                rawDesc,
-                                price,
-                                size))
+            entries+= LancasterProductEntryFactory.fromLine(
+                preparsed.category,
+                null,
+                rawDesc,
+                price,
+                size)
 
         }
 

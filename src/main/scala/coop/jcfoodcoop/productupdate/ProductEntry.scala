@@ -51,7 +51,7 @@ class ProductEntry(
     var productDescription: String = null//Description of how the item comes, e.g. 12 (8 oz size) per case
     var limitedSupply: Boolean = false
     var onSale: Boolean = false
-    var priceFinal: Boolean = false
+    var priceFinal: Boolean = true  //Things like Meat are not priced until delivery, because we don't know how big a cut we're going to get
     var preorder: Boolean = false
     var organic: Boolean = false
     var loose: Boolean = false

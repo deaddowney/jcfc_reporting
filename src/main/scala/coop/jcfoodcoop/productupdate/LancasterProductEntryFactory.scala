@@ -181,6 +181,11 @@ object LancasterProductEntryFactory {
             }
         }
 
+        //Add "Price finalized" for stuff we don't know the price of
+        if (!entry.priceFinal) {
+            entry.productDescription = entry.productDescription+" (Price Finalized at Shipping)"
+        }
+
         entry
 
 
