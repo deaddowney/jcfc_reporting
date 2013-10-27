@@ -43,7 +43,7 @@ class LancasterController {
       @FXML
       def onFileOpen(event:ActionEvent) {
           val fileChooser = new FileChooser()
-          val xlsx = new FileChooser.ExtensionFilter("Word Files", "*.docx", "*.doc")
+          val xlsx = new FileChooser.ExtensionFilter("Word Files 97", "*.doc")
 
 
 
