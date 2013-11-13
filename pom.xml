@@ -11,7 +11,7 @@
     <groupId>coop.jcfoodcoop</groupId>
     <artifactId>Reporting</artifactId>
     <name>Reporting</name>
-    <version>2.0-SNAPSHOT</version>
+    <version>1.1.1</version>
     <properties>
       <scala.version>2.10.2</scala.version>
     </properties>
@@ -101,7 +101,7 @@
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>build-native</goal>
+                            <goal>native</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -174,7 +174,7 @@
                        </filters>
                     <transformers>
                       <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                        <mainClass>coop.jcfoodcoop.reporting.gui.ReportingGUI</mainClass>
+                        <mainClass>coop.jcfoodcoop.reporting.gui.MainController</mainClass>
                       </transformer>
                     </transformers>
                   </configuration>

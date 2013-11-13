@@ -14,13 +14,14 @@ object ExcelParseContext {
     /** We search for this to find the summary row **/
     val totQtyReceivedRegex = """Total quantity received: (\d+\.\d+)""".r
     val procFeeRegex = """Processing fee \((\d+\.\d+)%\)""".r
+    val splitRegex = """(\d+) of (\d+)""".r //2 of 12
 
     val now = new DateTime()
 
     val ID_PREFIX = DateTimeFormat.forPattern("yyyyMMdd").print(now)
 
     val DATE = DateTimeFormat.forPattern("MM-dd-yyyy").print(now)
-    val DUE_DATE = DateTimeFormat.forPattern("MM-dd-yyyy").print(now + 7.days)
+    val DUE_DATE = DateTimeFormat.forPattern("MM-dd-yyyy").print(now + 1.days)
 
 
     def getName(nameCell: Cell) = {
@@ -235,16 +236,38 @@ object InvoiceItem {
         item.qty = row.getCell(1).getNumericCellValue
         val actualPriceString = formatter.formatCellValue(row.getCell(11))
         var actualPrice = 0.0
+        var splitQty = 0
+
+        val cell: Cell = row.getCell(2)
+        if (cell!=null) {
+            val value: String = cell.getStringCellValue
+            val splitMatcher = ExcelParseContext.splitRegex.findFirstMatchIn(value)
+
+            if (splitMatcher.isDefined) {
+                splitQty = splitMatcher.get.group(1).toInt
+            }
+        }
         //Sometime n/a shows up here
         if (!"Out- of- stock".equals(actualPriceString) && actualPriceString!=null && !actualPriceString.equals("")) {
-            actualPrice = actualPriceString.toDouble
+            if ("n/a" == actualPriceString) {
+                actualPrice = 0.0
+            } else {
+                actualPrice = actualPriceString.toDouble
+            }
         }
-        item.rate = actualPrice
         item.total = row.getCell(13).getNumericCellValue //Item total
+        if (actualPrice == 0.0 && splitQty > 0) {
+            item.rate = item.total / splitQty
+        } else {
+            item.rate = actualPrice
+        }
+
         //Food club has frequent rounding issues.  We do the best we can to stay in sync with
         //their totals
-        if (Math.abs((item.total * 100) - (item.rate * item.qty * 100)) >= 1) {
-            item.rate = item.total / item.qty
+        if (splitQty == 0) {
+            if (Math.abs((item.total * 100) - (item.rate * item.qty * 100)) >= 1) {
+                item.rate = item.total / item.qty
+            }
         }
         item
     }

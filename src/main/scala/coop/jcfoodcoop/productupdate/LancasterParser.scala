@@ -5,6 +5,7 @@ import java.text.DecimalFormat
 import org.apache.poi.hwpf.HWPFDocument
 import org.apache.poi.hwpf.extractor.WordExtractor
 import scala.collection.mutable.ListBuffer
+import scala.annotation.tailrec
 
 /**
  * @author akrieg
@@ -158,9 +159,24 @@ class LancasterParser(inputFile:File, outputFile:File) {
 
         var lastLine:String = null
         val preparsedEntries = new ListBuffer[PreParsedProductEntry]()
+        //Crawls back until we find some non-blank text
+        @tailrec
+        def findCategory(index:Int): String = {
+            if (index < 0) {
+                return null
+            }
+
+            val line = text(index).trim()
+            if (line!=null && !line.isEmpty){
+                return line
+            }
+            findCategory(index-1)
+
+        }
         for (i <- 0 until text.length) {
             val line = text(i).trim()
             if (!line.isEmpty) {
+                //Stuff either starts with "Qty:" or
                 if ("Qty:".equals(line)) {
                     /**
                      *  We're in a Product Entry.  The next two lines will describe the entry, e.g.:
@@ -178,7 +194,7 @@ class LancasterParser(inputFile:File, outputFile:File) {
                     val priceDesc = text(i + 2).trim()
                     val preparsed = new PreParsedProductEntry(i, null, rawDesc, priceDesc)
                     if (preparsed.linNum - previousEntryLineNum > 5) {
-                        preparsed.category = text(preparsed.linNum -1).trim()
+                        preparsed.category = findCategory(preparsed.linNum -1)
                     } else {
                         preparsed.category = preparsedEntries.last.category
                     }
