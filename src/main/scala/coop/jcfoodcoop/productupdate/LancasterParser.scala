@@ -158,7 +158,8 @@ class LancasterParser(inputFile:File, outputFile:File) {
         var lastLine:String = null
         val preparsedEntries = new ListBuffer[PreParsedProductEntry]()
         for (i <- 0 until text.length) {
-            val line = text(i).trim()
+            val lineWithSpace: String = text(i)
+            val line = trimWhitespace(lineWithSpace)
             if (!line.isEmpty) {
                 if ("Qty:".equals(line)) {
                     /**
@@ -173,11 +174,11 @@ class LancasterParser(inputFile:File, outputFile:File) {
                         throw new RuntimeException("Malformed file, missing product description")
                     }
 
-                    val rawDesc = text(i + 1).trim()
-                    val priceDesc = text(i + 2).trim()
+                    val rawDesc = trimWhitespace(text(i + 1))
+                    val priceDesc = trimWhitespace(text(i + 2))
                     val preparsed = new PreParsedProductEntry(i, null, rawDesc, priceDesc)
                     if (preparsed.linNum - previousEntryLineNum > 5) {
-                        preparsed.category = text(preparsed.linNum -1).trim()
+                        preparsed.category = trimWhitespace(text(preparsed.linNum -1))
                     } else {
                         preparsed.category = preparsedEntries.last.category
                     }
@@ -199,6 +200,11 @@ class LancasterParser(inputFile:File, outputFile:File) {
             }
         }
         preparsedEntries.toList
+    }
+
+
+    def trimWhitespace(lineWithSpace: String): String = {
+        lineWithSpace.replaceAll("\u00A0", " ").trim()
     }
 
     /**

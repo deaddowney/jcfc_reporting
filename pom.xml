@@ -10,8 +10,8 @@
     </organization>
     <groupId>coop.jcfoodcoop</groupId>
     <artifactId>Reporting</artifactId>
-    <name>Reporting</name>
-    <version>1.1.0</version>
+    <name>Reporting-Java6</name>
+    <version>1.1.2</version>
     <properties>
       <scala.version>2.10.1</scala.version>
     </properties>
