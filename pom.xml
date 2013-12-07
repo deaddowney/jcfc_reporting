@@ -11,7 +11,7 @@
     <groupId>coop.jcfoodcoop</groupId>
     <artifactId>Reporting</artifactId>
     <name>Reporting</name>
-    <version>1.1.2</version>
+    <version>1.2-SNAPSHOT</version>
     <properties>
       <scala.version>2.10.2</scala.version>
     </properties>
@@ -49,11 +49,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.controlsfx</groupId>
-            <artifactId>controlsfx</artifactId>
-            <version>8.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-scratchpad</artifactId>
             <version>3.9</version>
@@ -87,26 +82,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.zenjava</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>1.5</version>
-                <configuration>
-
-                    <mainClass>coop.jcfoodcoop.reporting.gui.MainController</mainClass>
-                    <bundleType>ALL</bundleType>
-                    <needShortcut>true</needShortcut>
-                    <needMenu>true</needMenu>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>native</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
               <groupId>org.scala-tools</groupId>
               <artifactId>maven-scala-plugin</artifactId>
                 <executions>
@@ -135,61 +110,11 @@
               <artifactId>maven-compiler-plugin</artifactId>
               <version>3.1</version>
               <configuration>
-                <source>1.8</source>
-                <target>1.8</target>
+                <source>1.7</source>
+                <target>1.7</target>
               </configuration>
             </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-assembly-plugin</artifactId>
-          <configuration>
-            <archive>
-              <manifest>
-                <mainClass>coop.jcfoodcoop.reporting.invoicing.SupplierForm</mainClass>
-              </manifest>
-            </archive>
-          </configuration>
-        </plugin>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-shade-plugin</artifactId>
-              <version>2.0</version>
-              <executions>
-                <execution>
-                  <phase>package</phase>
-                  <goals>
-                    <goal>shade</goal>
-                  </goals>
-                  <configuration>
-                      <!-- Keeps the signed shit out of the jar -->
-                      <filters>
-                           <filter>
-                               <artifact>*:*</artifact>
-                               <excludes>
-                                   <exclude>META-INF/*.SF</exclude>
-                                   <exclude>META-INF/*.DSA</exclude>
-                                   <exclude>META-INF/*.RSA</exclude>
-                               </excludes>
-                           </filter>
-                       </filters>
-                    <transformers>
-                      <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                        <mainClass>coop.jcfoodcoop.reporting.gui.MainController</mainClass>
-                      </transformer>
-                    </transformers>
-                  </configuration>
-                </execution>
-              </executions>
-            </plugin>
 
-            <plugin>
-                <groupId>com.zenjava</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>2.0</version>
-                <configuration>
-                    <mainClass>coop.jcfoodcoop.reporting.gui.MainController</mainClass>
-                </configuration>
-            </plugin>
     </plugins>
 </build>
 </project>
