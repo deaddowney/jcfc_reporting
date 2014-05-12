@@ -25,12 +25,22 @@ object ExcelParseContext {
 
 
     def getName(nameCell: Cell) = {
-        var name = nameCell.getStringCellValue.trim()
+        //Weird bug in Excel output where the name has a bunch of html shit at the end.  Strip it out
+        def stripHtmlSpan(name:String): String = {
+            if (name.contains("<span class")) {
+                name.substring(0, name.indexOf("<span"))
+            } else {
+                name
+            }
+        }
+
+        var name = stripHtmlSpan(nameCell.getStringCellValue.trim())
         //put last name at end.
         val commaIndex = name.indexOf(",")
         if (commaIndex > 0) {
             name = name.substring(commaIndex + 1).trim() + " " + name.substring(0, commaIndex).trim()
         }
+
         name
     }
 
