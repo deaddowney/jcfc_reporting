@@ -119,9 +119,9 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
     def parseSheet(sheet: Sheet, vendor: String): Order = {
         //The spreadsheet format looks like:
         /**
-         * Lisa Clarke
-         Code	Qty	Split units	Category	Subcategory	2<sup>nd</sup> Subcategory	Manufacturer	Description	Size	Comment	Order price	Actual price	Actual unit price	Item total
-         13352I	0.5	6 of 12	Grocery	Juices and Nectars		Amy and Brian's	Natural Coconut Juice Pulp Free	12 (17.5 oz) per case		20.87	20.87	1.74/(17.5 oz) per case	10.44
+         * Shah, Lucille
+         Full name	Code	Qty	Split units	Category	Subcategory	2<sup>nd</sup> Subcategory	Manufacturer	Description	Size	Comment	Order price	Actual price	Actual unit price	Item total
+         Shah, Lucille	13352I	0.5	6 of 12	Grocery	Juices and Nectars		Amy and Brian's	Natural Coconut Juice Pulp Free	12 (17.5 oz) per case		20.87	20.87	1.74/(17.5 oz) per case	10.44
          */
 
 
@@ -142,7 +142,7 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
         while (rowIter.hasNext) {
             val row = rowIter.next()
             val value = formatter.formatCellValue(row.getCell(0))
-            if (state == ParseState.BEGIN && "Code".equals(value)) {
+            if (state == ParseState.BEGIN && "Full name".equals(value)) {
                 state = ParseState.IN_ITEMS //We're now parsing the items in the invoice
             } else {
                 val m = ExcelParseContext.totQtyReceivedRegex.findFirstMatchIn(value)
@@ -240,15 +240,25 @@ object InvoiceItem {
 
     def from(row: Row, formatter: DataFormatter): InvoiceItem = {
         val item = new InvoiceItem()
-        item.product = formatter.formatCellValue(row.getCell(0)) //Code
+        val CODE_INDEX: Int = 1
+        val QTY_INDEX: Int = 2
+        val SPLIT_INDEX: Int = 3
+
+        val MANUFACTURER_INDEX: Int = 7
+        val DESCRIPTION_INDEX: Int = 8
+        val ACTUAL_PX_INDEX: Int = 12
+        val ITEM_TOTAL_INDEX: Int = 14
+
+        item.product = formatter.formatCellValue(row.getCell(CODE_INDEX)) //Code
         //Add manufacturer to description
-        item.description = formatter.formatCellValue(row.getCell(6)) + " " + formatter.formatCellValue(row.getCell(7))
-        item.qty = row.getCell(1).getNumericCellValue
-        val actualPriceString = formatter.formatCellValue(row.getCell(11))
+        item.description = formatter.formatCellValue(row.getCell(MANUFACTURER_INDEX)) + " " +
+            formatter.formatCellValue(row.getCell(DESCRIPTION_INDEX))
+        item.qty = row.getCell(QTY_INDEX).getNumericCellValue
+        val actualPriceString = formatter.formatCellValue(row.getCell(ACTUAL_PX_INDEX))
         var actualPrice = 0.0
         var splitQty = 0
 
-        val cell: Cell = row.getCell(2)
+        val cell: Cell = row.getCell(SPLIT_INDEX)
         if (cell!=null) {
             val value: String = cell.getStringCellValue
             val splitMatcher = ExcelParseContext.splitRegex.findFirstMatchIn(value)
@@ -265,7 +275,7 @@ object InvoiceItem {
                 actualPrice = actualPriceString.toDouble
             }
         }
-        item.total = row.getCell(13).getNumericCellValue //Item total
+        item.total = row.getCell(ITEM_TOTAL_INDEX).getNumericCellValue //Item total
         if (actualPrice == 0.0 && splitQty > 0) {
             item.rate = item.total / splitQty
         } else {
