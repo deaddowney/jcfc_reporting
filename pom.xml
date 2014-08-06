@@ -11,7 +11,7 @@
     <groupId>coop.jcfoodcoop</groupId>
     <artifactId>Reporting</artifactId>
     <name>Reporting</name>
-    <version>1.3-SNAPSHOT</version>
+    <version>1.3.0</version>
     <properties>
       <scala.version>2.10.2</scala.version>
     </properties>
