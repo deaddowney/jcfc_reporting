@@ -1,11 +1,11 @@
 package coop.jcfoodcoop.productupdate.zone7
 
-import au.com.bytecode.opencsv.CSVReader
 import java.io.FileReader
-import scala.annotation.tailrec
-import scala.Option
-import scala.util.matching.Regex
+
+import au.com.bytecode.opencsv.CSVReader
 import coop.jcfoodcoop.productupdate.ProductEntry
+
+import scala.annotation.tailrec
 
 /**
  * @author akrieg
@@ -16,24 +16,26 @@ object Zone7Parser {
 
     type Line = Array[String]
 
-    def readHeader(reader: CSVReader): ColumnHeader = {
+    def readHeader(reader: Stream[Line]): ColumnHeader = {
 
         @tailrec
-        def readHeaderRec(reader: CSVReader, curLine: Line): ColumnHeader = {
-            if (curLine == null) {
+        def readHeaderRec(reader: Stream[Line]): ColumnHeader = {
+            val curLineOption = reader.headOption
+            if (curLineOption.isEmpty) {
                 throw new IllegalArgumentException("No Header row found in file")
             }
+            val curLine: Line = curLineOption.get
             val productIndexes = for (index <- curLine.indices if curLine(index) == "Product / Description") yield index
             if (productIndexes.nonEmpty) {
                 val productIndex = productIndexes.head
                 new ColumnHeader(product = productIndex)
             } else {
-                readHeaderRec(reader, reader.readNext())
+                readHeaderRec(reader.tail)
             }
 
         }
 
-        readHeaderRec(reader, reader.readNext())
+        readHeaderRec(reader)
     }
 
     abstract class LineType
@@ -105,7 +107,10 @@ object Zone7Parser {
 
         val reader = new CSVReader(new FileReader(file))
 
-        val header = readHeader(reader)
+        val lines = csv.Read.streamRows(reader)
+
+        val header = readHeader(lines)
+
         def isBlankRow(row: Line): Boolean = {
             row.isEmpty || row.size < header.farm || ("" == row(header.product))
         }
@@ -139,15 +144,6 @@ object Zone7Parser {
                 }
             } catch {
                 case e:Exception => throw new RuntimeException("Exception occurred processing line " + line.mkString(","))
-            }
-        }
-
-        def streamRows: Lines = {
-            val row = reader.readNext()
-            if (row == null) {
-                Stream.empty
-            } else {
-                row #:: streamRows
             }
         }
 
@@ -185,7 +181,7 @@ object Zone7Parser {
         }
 
 
-         for (product <- streamProducts(streamRows) if product._2.isDefined) yield toProductEntry(product._2.get, product._1)
+         for (product <- streamProducts(lines) if product._2.isDefined) yield toProductEntry(product._2.get, product._1)
 
 
     }
