@@ -64,6 +64,9 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
                 val row = writeItemToRow(order, item)
                 csvOut.writeNext(row.toArray)
             }
+            if (order.markup > 0) {
+                csvOut.writeNext(writeItemToRow(order, createMarkupItem(order)).toArray)
+            }
             if (order.fees > 0) {
                 //Write an extra line for fees
                 csvOut.writeNext(writeItemToRow(order, createFeeItem(order)).toArray )
@@ -79,6 +82,15 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
         item.qty = 1
         item.rate = o.fees
         item.accountCode = 777 //PayPal Expense
+        item
+    }
+
+    def createMarkupItem(o: Order) = {
+        val item = new InvoiceItem()
+        item.description = "25% Markup"
+        item.qty = 1
+        item.rate = o.markup
+        item.accountCode = 400 //Sales
         item
     }
 
@@ -152,6 +164,11 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
 
                     val invoiceRow = rowIter.next()
                     o.invoiceTotal = invoiceRow.getCell(1).getNumericCellValue
+
+                    //The next row contains the markup
+                    val markupRow = rowIter.next()
+                    val markupValue = markupRow.getCell(1).getNumericCellValue
+                    o.markup = markupValue.toDouble
 
                     //The next row contains either the fee, if the fee has been assigned, or the invoice total
                     val feeRow = rowIter.next() //
@@ -316,7 +333,9 @@ class Order {
     var fees: Double = 0.0
     var feeRate: Double = 0.0
     var invoiceTotal: Double = 0.0
+    var markup:Double = 0.0
     var total: Double = 0.0
+
 
     var id: String = ""
     var vendor: String = ""
