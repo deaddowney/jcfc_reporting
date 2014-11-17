@@ -10,7 +10,7 @@ object GenOrientationDates extends App {
 
     val queryString = "insert into jcfc_event_dates (type, event_date, location, duration_mins, description) values "
     val df = DateTimeFormat.forPattern("yyyy-MM-dd")
-    var startDate = df.parseDateTime("2012-05-08")
+    var startDate = df.parseDateTime("2014-11-19")
     var buf = new StringBuilder(queryString)
     for (i <- 1 to 400) {
         buf.append("('orientation', ").
