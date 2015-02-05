@@ -1,10 +1,12 @@
 package coop.jcfoodcoop.invoicing
 
-import org.apache.poi.ss.usermodel._
-import au.com.bytecode.opencsv.CSVWriter
 import java.io.Writer
+
+import au.com.bytecode.opencsv.CSVWriter
+import org.apache.poi.ss.usermodel._
 import org.joda.time.format.DateTimeFormat
 import org.scala_tools.time.Imports._
+
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -26,7 +28,7 @@ object ExcelParseContext {
 
     def getName(nameCell: Cell) = {
         //Weird bug in Excel output where the name has a bunch of html shit at the end.  Strip it out
-        def stripHtmlSpan(name:String): String = {
+        def stripHtmlSpan(name: String): String = {
             if (name.contains("<span class")) {
                 name.substring(0, name.indexOf("<span"))
             } else {
@@ -54,7 +56,7 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
     val formatter = new DataFormatter()
 
 
-    def parse(vendor: String)  {
+    def parse(vendor: String) {
         csvOut.writeNext(createHeader().toArray)
         for (i <- 0 until sourceBook.getNumberOfSheets) {
             val sheet = sourceBook.getSheetAt(i)
@@ -69,7 +71,7 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
             }
             if (order.fees > 0) {
                 //Write an extra line for fees
-                csvOut.writeNext(writeItemToRow(order, createFeeItem(order)).toArray )
+                csvOut.writeNext(writeItemToRow(order, createFeeItem(order)).toArray)
             }
 
         }
@@ -165,10 +167,7 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
                     val invoiceRow = rowIter.next()
                     o.invoiceTotal = invoiceRow.getCell(1).getNumericCellValue
 
-                    //The next row contains the markup
-                    val markupRow = rowIter.next()
-                    val markupValue = markupRow.getCell(1).getNumericCellValue
-                    o.markup = markupValue.toDouble
+
 
                     //The next row contains either the fee, if the fee has been assigned, or the invoice total
                     val feeRow = rowIter.next() //
@@ -193,6 +192,10 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
 
                     }
 
+                    //The next row contains the markup
+                    val markupRow = rowIter.next()
+                    val markupValue = markupRow.getCell(1).getNumericCellValue
+                    o.markup = markupValue.toDouble
 
                 } else if (row.getCell(1) != null && state == ParseState.IN_ITEMS) {
                     items += createInvoiceItem(row)
@@ -276,7 +279,7 @@ object InvoiceItem {
         var splitQty = 0
 
         val cell: Cell = row.getCell(SPLIT_INDEX)
-        if (cell!=null) {
+        if (cell != null) {
             val value: String = cell.getStringCellValue
             val splitMatcher = ExcelParseContext.splitRegex.findFirstMatchIn(value)
 
@@ -285,14 +288,20 @@ object InvoiceItem {
             }
         }
         //Sometime n/a shows up here
-        if (!"Out- of- stock".equals(actualPriceString) && actualPriceString!=null && !actualPriceString.equals("")) {
+        if (!"Out- of- stock".equals(actualPriceString) && actualPriceString != null && !actualPriceString.equals("")) {
             if ("n/a" == actualPriceString) {
                 actualPrice = 0.0
             } else {
                 actualPrice = actualPriceString.toDouble
             }
         }
-        item.total = row.getCell(ITEM_TOTAL_INDEX).getNumericCellValue //Item total
+        val itemTotCell: Cell = row.getCell(ITEM_TOTAL_INDEX)
+        item.total = if (itemTotCell.getCellType == org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC) {
+            itemTotCell.getNumericCellValue
+        } else {
+            0
+        }
+
         if (actualPrice == 0.0 && splitQty > 0) {
             item.rate = item.total / splitQty
         } else {
@@ -333,7 +342,7 @@ class Order {
     var fees: Double = 0.0
     var feeRate: Double = 0.0
     var invoiceTotal: Double = 0.0
-    var markup:Double = 0.0
+    var markup: Double = 0.0
     var total: Double = 0.0
 
 
