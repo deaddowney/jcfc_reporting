@@ -7,7 +7,9 @@ import org.apache.poi.ss.usermodel._
 import org.joda.time.format.DateTimeFormat
 import org.scala_tools.time.Imports._
 
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.util.matching.Regex
 
 /**
  * @author akrieg
@@ -15,7 +17,11 @@ import scala.collection.mutable.ListBuffer
 object ExcelParseContext {
     /** We search for this to find the summary row **/
     val totQtyReceivedRegex = """Total quantity received: (\d+\.\d+)""".r
+    val invoiceTotalRegex = """Invoice total""".r
+    val jcfcMarkupRegex = """JCFC \(\d\d\.\d\d%\)""".r
     val procFeeRegex = """Processing fee \((\d+\.\d+)%\)""".r
+    val totalRegex = """Total""".r
+
     val splitRegex = """(\d+) of (\d+)""".r //2 of 12
 
     val now = new DateTime()
@@ -163,39 +169,13 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
                 if (state == ParseState.IN_ITEMS && m.isDefined) {
                     state = ParseState.IN_TOTAL
 
+                    val totalMap = processTotalRows(rowIter)
 
-                    val invoiceRow = rowIter.next()
-                    o.invoiceTotal = invoiceRow.getCell(1).getNumericCellValue
-
-
-
-                    //The next row contains either the fee, if the fee has been assigned, or the invoice total
-                    val feeRow = rowIter.next() //
-                    val feeDescription = feeRow.getCell(0).getStringCellValue
-                    if (feeDescription.trim().startsWith("Processing fee")) {
-                        val totalRow = rowIter.next()
-                        val total = totalRow.getCell(1).getNumericCellValue
-
-                        o.total = total
-                        o.fees = feeRow.getCell(1).getNumericCellValue
-                        val feeMatcher = ExcelParseContext.procFeeRegex.findFirstMatchIn(feeRow.getCell(0).getStringCellValue)
-
-                        if (feeMatcher.isDefined) {
-                            o.feeRate = feeMatcher.get.group(1).toDouble / 100.0
-                        }
-
-
-                    } else {
-                        o.feeRate = 0.035
-                        o.fees = o.invoiceTotal * o.feeRate
-                        o.total = o.invoiceTotal + o.fees
-
-                    }
-
-                    //The next row contains the markup
-                    val markupRow = rowIter.next()
-                    val markupValue = markupRow.getCell(1).getNumericCellValue
-                    o.markup = markupValue.toDouble
+                    o.invoiceTotal = totalMap.get(ExcelParseContext.invoiceTotalRegex).get
+                    o.feeRate = 0.25
+                    o.fees = totalMap.getOrElse(ExcelParseContext.procFeeRegex, o.feeRate * o.invoiceTotal)
+                    o.markup = totalMap.get(ExcelParseContext.jcfcMarkupRegex).get
+                    o.total = totalMap.get(ExcelParseContext.totalRegex).get
 
                 } else if (row.getCell(1) != null && state == ParseState.IN_ITEMS) {
                     items += createInvoiceItem(row)
@@ -205,6 +185,26 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
 
         }
         o
+    }
+
+    /**
+     *
+     * @param rowIter
+     * @return map of Regex to Values for further inspection
+     */
+    def processTotalRows(rowIter: java.util.Iterator[Row]) = {
+        val itemMap = mutable.Map[Regex, Double]()
+        val patterns = List(ExcelParseContext.invoiceTotalRegex, ExcelParseContext.jcfcMarkupRegex, ExcelParseContext.procFeeRegex, ExcelParseContext.totQtyReceivedRegex, ExcelParseContext.totalRegex)
+        while (rowIter.hasNext) {
+            val row = rowIter.next
+            val description = row.getCell(0).getStringCellValue
+            val dollarVal = row.getCell(1).getNumericCellValue
+            val matchedP = patterns.find(p => p.findFirstMatchIn(description).isDefined)
+            if (matchedP.isDefined) {
+                itemMap.put(matchedP.get, dollarVal)
+            }
+        }
+        itemMap
     }
 
     /**
