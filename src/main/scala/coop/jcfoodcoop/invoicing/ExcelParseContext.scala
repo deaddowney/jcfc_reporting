@@ -189,7 +189,7 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
 
     /**
      *
-     * @param rowIter
+     * @param rowIter source of rows in the excel spreadsheet
      * @return map of Regex to Values for further inspection
      */
     def processTotalRows(rowIter: java.util.Iterator[Row]) = {
