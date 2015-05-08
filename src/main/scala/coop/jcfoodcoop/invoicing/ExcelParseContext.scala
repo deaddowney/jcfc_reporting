@@ -19,7 +19,7 @@ object ExcelParseContext {
     val totQtyReceivedRegex = """Total quantity received: (\d+\.\d+)""".r
     val invoiceTotalRegex = """Invoice total""".r
     val jcfcMarkupRegex = """JCFC \(\d\d\.\d\d%\)""".r
-    val procFeeRegex = """Processing fee \((\d+\.\d+)%\)""".r
+    val procFeeRegex = """Processing [fF]ee \((\d+\.\d+)%\)""".r
     val totalRegex = """Total""".r
 
     val splitRegex = """(\d+) of (\d+)""".r //2 of 12
@@ -197,7 +197,7 @@ class ExcelParseContext(val sourceBook: Workbook, out: Writer) {
         val patterns = List(ExcelParseContext.invoiceTotalRegex, ExcelParseContext.jcfcMarkupRegex, ExcelParseContext.procFeeRegex, ExcelParseContext.totQtyReceivedRegex, ExcelParseContext.totalRegex)
         while (rowIter.hasNext) {
             val row = rowIter.next
-            val description = row.getCell(0).getStringCellValue
+            val description = row.getCell(0).getStringCellValue.trim
             val dollarVal = row.getCell(1).getNumericCellValue
             val matchedP = patterns.find(p => p.findFirstMatchIn(description).isDefined)
             if (matchedP.isDefined) {
